@@ -1,0 +1,67 @@
+﻿@model Hospital.Domain.Models.Patient
+
+@{
+    ViewData["Title"] = "Patiëntdossier";
+}
+
+<a asp-controller="Patients"
+       asp-action="Index">
+    ← Terug naar patiënten
+</a>
+
+<h1>@Model.FullName</h1>
+
+<p>
+    Patiëntnummer: @Model.Id
+</p>
+
+<hr />
+
+<h2>Persoonsgegevens</h2>
+
+<dl>
+    <dt>Geboortedatum</dt>
+    <dd>@Model.DateOfBirth.ToString("dd-MM-yyyy")</dd>
+
+    <dt>E-mailadres</dt>
+    <dd>@Model.Email</dd>
+
+    <dt>Telefoonnummer</dt>
+    <dd>@Model.PhoneNumber</dd>
+
+    <dt>Adres</dt>
+    <dd>@Model.Address</dd>
+</dl>
+
+<hr />
+
+<h2>Dossier</h2>
+
+<p>
+    Vanuit dit patiëntdossier kunnen behandelingen,
+    consultaties en operaties worden beheerd.
+</p>
+
+<p>
+    <a asp-controller="Treatments"
+           asp-action="Index"
+           asp-route-patientId="@Model.Id">
+        Behandelingen bekijken
+    </a>
+</p>
+
+<p>
+    <a asp-controller="Consultations"
+           asp-action="Index"
+           asp-route-patientId="@Model.Id">
+        Consultaties bekijken
+    </a>
+</p>
+
+<p>
+    <a asp-controller="Operations"
+           asp-action="Index"
+           asp-route-patientId="@Model.Id">
+        Operaties bekijken
+    </a>
+</p>

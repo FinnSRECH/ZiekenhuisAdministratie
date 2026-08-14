@@ -1,0 +1,43 @@
+﻿@model IReadOnlyList<Hospital.Domain.Models.Patient>
+
+@{
+    ViewData["Title"] = "Patiënten";
+}
+
+<h1>Patiënten</h1>
+
+<p>
+    Overzicht van de patiënten die in het ziekenhuis zijn geregistreerd.
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Naam</th>
+            <th>Geboortedatum</th>
+            <th>E-mail</th>
+            <th>Telefoonnummer</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var patient in Model)
+        {
+            <tr>
+                <td>@patient.FullName</td>
+                <td>@patient.DateOfBirth.ToString("dd-MM-yyyy")</td>
+                <td>@patient.Email</td>
+                <td>@patient.PhoneNumber</td>
+
+                <td>
+                    <a asp-controller="Patients"
+                           asp-action="Details"
+                           asp-route-id="@patient.Id">
+                        Dossier openen
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
