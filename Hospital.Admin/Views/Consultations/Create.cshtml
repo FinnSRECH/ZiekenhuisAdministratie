@@ -1,0 +1,145 @@
+﻿@model Hospital.Domain.Models.Consultation
+@using Hospital.Domain.Models
+@using Hospital.Domain.Enums
+
+@{
+    ViewData["Title"] = "Consultatie plannen";
+
+    var patient =
+        ViewBag.Patient as Patient;
+
+    var treatments =
+        ViewBag.Treatments as IReadOnlyList<Treatment>
+        ?? Array.Empty<Treatment>();
+
+    var surgeons =
+        ViewBag.Surgeons as IReadOnlyList<StaffMember>
+        ?? Array.Empty<StaffMember>();
+}
+
+<a asp-controller="Consultations"
+   asp-action="Index"
+   asp-route-patientId="@Model.PatientId">
+    ← Terug naar consultaties
+</a>
+
+<h1>Nieuwe consultatie plannen</h1>
+
+@if (patient is not null)
+{
+    <p>
+        Patiënt:
+        <strong>@patient.FullName</strong>
+    </p>
+}
+
+<form asp-action="Create"
+      method="post">
+
+    <input asp-for="PatientId"
+           type="hidden" />
+
+    <div asp-validation-summary="ModelOnly">
+    </div>
+
+    <div>
+        <label asp-for="TreatmentId">
+            Behandeling
+        </label>
+
+        <select asp-for="TreatmentId">
+
+            <option value="">
+                Selecteer een behandeling
+            </option>
+
+            @foreach (var treatment in treatments)
+            {
+                <option value="@treatment.Id">
+                    @treatment.Name
+                </option>
+            }
+
+        </select>
+
+        <span asp-validation-for="TreatmentId">
+        </span>
+    </div>
+
+    <div>
+        <label asp-for="Reason">
+            Reden consultatie
+        </label>
+
+        <input asp-for="Reason"
+               placeholder="Bijvoorbeeld: controle knie" />
+
+        <span asp-validation-for="Reason">
+        </span>
+    </div>
+
+    <div>
+        <label asp-for="StartTime">
+            Datum en tijd
+        </label>
+
+        <input asp-for="StartTime"
+               type="datetime-local" />
+
+        <span asp-validation-for="StartTime">
+        </span>
+    </div>
+
+    <div>
+        <label asp-for="SurgeonId">
+            Chirurg
+        </label>
+
+        <select asp-for="SurgeonId">
+
+            <option value="">
+                Selecteer een chirurg
+            </option>
+
+            @foreach (var surgeon in surgeons)
+            {
+                <option value="@surgeon.Id">
+                    @surgeon.FullName
+                </option>
+            }
+
+        </select>
+
+        <span asp-validation-for="SurgeonId">
+        </span>
+    </div>
+
+    <div>
+        <label asp-for="Room">
+            Ruimte
+        </label>
+
+        <input asp-for="Room"
+               placeholder="Bijvoorbeeld: B2.14" />
+
+        <span asp-validation-for="Room">
+        </span>
+    </div>
+
+    <div>
+        <label asp-for="Status">
+            Status
+        </label>
+
+        <select asp-for="Status"
+                asp-items="Html.GetEnumSelectList<AppointmentStatus>()">
+        </select>
+    </div>
+
+    <br />
+
+    <button type="submit">
+        Consultatie plannen
+    </button>
+
+</form>

@@ -1,0 +1,98 @@
+﻿@model IReadOnlyList<Hospital.Domain.Models.Consultation>
+@using Hospital.Domain.Models
+
+@{
+    ViewData["Title"] = "Consultaties";
+
+    var patient =
+        ViewBag.Patient as Patient;
+}
+
+<a asp-controller="Patients"
+   asp-action="Details"
+   asp-route-id="@patient?.Id">
+    ← Terug naar patiëntdossier
+</a>
+
+<h1>Consultaties</h1>
+@if (TempData["Success"] is string success)
+{
+    <div>
+        <strong>@success</strong>
+    </div>
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div>
+        <strong>@error</strong>
+    </div>
+}
+
+@if (patient is not null)
+{
+    <p>
+        Patiënt:
+        <strong>@patient.FullName</strong>
+    </p>
+}
+
+<p>
+    Bekijk de geplande en eerdere consultaties van deze patiënt.
+</p>
+
+<p>
+    <a asp-controller="Consultations"
+       asp-action="Create"
+       asp-route-patientId="@patient?.Id">
+        Nieuwe consultatie plannen
+    </a>
+</p>
+
+@if (!Model.Any())
+{
+    <p>
+        Voor deze patiënt zijn nog geen consultaties geregistreerd.
+    </p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Datum</th>
+                <th>Tijd</th>
+                <th>Reden</th>
+                <th>Ruimte</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var consultation in Model)
+            {
+                <tr>
+                    <td>
+                        @consultation.StartTime.ToString("dd-MM-yyyy")
+                    </td>
+
+                    <td>
+                        @consultation.StartTime.ToString("HH:mm")
+                    </td>
+
+                    <td>
+                        @consultation.Reason
+                    </td>
+
+                    <td>
+                        @consultation.Room
+                    </td>
+
+                    <td>
+                        @consultation.Status
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

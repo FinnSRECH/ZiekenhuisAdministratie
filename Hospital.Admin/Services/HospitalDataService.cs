@@ -138,6 +138,11 @@ public class HospitalDataService
 		return _staffMembers;
 	}
 
+	public StaffMember? GetStaffMember(int id)
+	{
+		return _staffMembers.FirstOrDefault(s => s.Id == id);
+	}
+
 	public IReadOnlyList<StaffMember> GetStaffMembersByRole(UserRole role)
 	{
 		return _staffMembers
@@ -149,6 +154,7 @@ public class HospitalDataService
 	{
 		return _treatments
 			.Where(t => t.PatientId == patientId)
+			.OrderByDescending(t => t.StartDate)
 			.ToList();
 	}
 
@@ -171,7 +177,23 @@ public class HospitalDataService
 	{
 		return _consultations
 			.Where(c => c.PatientId == patientId)
+			.OrderBy(c => c.StartTime)
 			.ToList();
+	}
+
+	public Consultation? GetConsultation(int consultationId)
+	{
+		return _consultations
+			.FirstOrDefault(c => c.Id == consultationId);
+	}
+
+	public void AddConsultation(Consultation consultation)
+	{
+		consultation.Id = _consultations.Count == 0
+			? 1
+			: _consultations.Max(c => c.Id) + 1;
+
+		_consultations.Add(consultation);
 	}
 
 	public IReadOnlyList<OperatingRoom> GetOperatingRooms()
@@ -183,6 +205,7 @@ public class HospitalDataService
 	{
 		return _operations
 			.Where(o => o.PatientId == patientId)
+			.OrderBy(o => o.StartTime)
 			.ToList();
 	}
 }
