@@ -1,0 +1,89 @@
+﻿@model IReadOnlyList<Hospital.Domain.Models.Operation>
+@using Hospital.Domain.Models
+
+@{
+    ViewData["Title"] = "Operaties";
+
+    var patient =
+        ViewBag.Patient as Patient;
+}
+
+<a asp-controller="Patients"
+       asp-action="Details"
+       asp-route-id="@patient?.Id">
+    ← Terug naar patiëntdossier
+</a>
+
+<h1>Operaties</h1>
+
+@if (patient is not null)
+{
+    <p>
+        Patiënt:
+        <strong>@patient.FullName</strong>
+    </p>
+}
+
+<p>
+    Bekijk geplande en eerdere operaties van deze patiënt.
+</p>
+
+<p>
+    <a asp-controller="Operations"
+           asp-action="Create"
+           asp-route-patientId="@patient?.Id">
+        Nieuwe operatie plannen
+    </a>
+</p>
+
+@if (!Model.Any())
+{
+    <p>
+        Voor deze patiënt zijn nog geen operaties geregistreerd.
+    </p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Operatie</th>
+                <th>Datum</th>
+                <th>Tijd</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var operation in Model)
+            {
+                <tr>
+                    <td>
+                        @operation.Name
+                    </td>
+
+                    <td>
+                        @operation.StartTime.ToString("dd-MM-yyyy")
+                    </td>
+
+                    <td>
+                        @operation.StartTime.ToString("HH:mm")
+                    </td>
+
+                    <td>
+                        @operation.Status
+                    </td>
+
+                    <td>
+                        <a asp-controller="Operations"
+                               asp-action="Details"
+                               asp-route-id="@operation.Id">
+                            Bekijken
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

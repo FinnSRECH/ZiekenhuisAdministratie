@@ -1,0 +1,72 @@
+﻿@model Hospital.Domain.Models.Operation
+@using Hospital.Domain.Models
+
+@{
+    ViewData["Title"] = "Operatie";
+
+    var patient =
+        ViewBag.Patient as Patient;
+
+    var treatment =
+        ViewBag.Treatment as Treatment;
+
+    var operatingRoom =
+        ViewBag.OperatingRoom as OperatingRoom;
+
+    var surgeons =
+        ViewBag.Surgeons as IReadOnlyList<StaffMember>
+        ?? Array.Empty<StaffMember>();
+}
+
+<a asp-controller="Operations"
+       asp-action="Index"
+       asp-route-patientId="@Model.PatientId">
+    ← Terug naar operaties
+</a>
+
+<h1>@Model.Name</h1>
+
+@if (patient is not null)
+{
+    <p>
+        Patiënt:
+        <strong>@patient.FullName</strong>
+    </p>
+}
+
+<h2>Operatiegegevens</h2>
+
+<dl>
+    <dt>Behandeling</dt>
+    <dd>@treatment?.Name</dd>
+
+    <dt>Omschrijving</dt>
+    <dd>@Model.Description</dd>
+
+    <dt>Datum en tijd</dt>
+    <dd>@Model.StartTime.ToString("dd-MM-yyyy HH:mm")</dd>
+
+    <dt>Operatiekamer</dt>
+    <dd>
+        @operatingRoom?.Name
+        @if (operatingRoom is not null)
+        {
+            <span>- @operatingRoom.Location</span>
+        }
+    </dd>
+
+    <dt>Chirurg(en)</dt>
+    <dd>
+        @if (!surgeons.Any())
+        {
+            <span>Geen chirurg gekoppeld.</span>
+        }
+        else
+        {
+            @string.Join(", ", surgeons.Select(s => s.FullName))
+        }
+    </dd>
+
+    <dt>Status</dt>
+    <dd>@Model.Status</dd>
+</dl>

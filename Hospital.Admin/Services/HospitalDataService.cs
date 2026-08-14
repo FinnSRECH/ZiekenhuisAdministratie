@@ -123,6 +123,10 @@ public class HospitalDataService
 
 	private readonly List<Operation> _operations = new();
 
+	// -------------------------
+	// PATIENTEN
+	// -------------------------
+
 	public IReadOnlyList<Patient> GetPatients()
 	{
 		return _patients;
@@ -130,8 +134,13 @@ public class HospitalDataService
 
 	public Patient? GetPatient(int id)
 	{
-		return _patients.FirstOrDefault(p => p.Id == id);
+		return _patients
+			.FirstOrDefault(p => p.Id == id);
 	}
+
+	// -------------------------
+	// PERSONEEL
+	// -------------------------
 
 	public IReadOnlyList<StaffMember> GetStaffMembers()
 	{
@@ -140,7 +149,8 @@ public class HospitalDataService
 
 	public StaffMember? GetStaffMember(int id)
 	{
-		return _staffMembers.FirstOrDefault(s => s.Id == id);
+		return _staffMembers
+			.FirstOrDefault(s => s.Id == id);
 	}
 
 	public IReadOnlyList<StaffMember> GetStaffMembersByRole(UserRole role)
@@ -149,6 +159,10 @@ public class HospitalDataService
 			.Where(s => s.Role == role)
 			.ToList();
 	}
+
+	// -------------------------
+	// BEHANDELINGEN
+	// -------------------------
 
 	public IReadOnlyList<Treatment> GetTreatments(int patientId)
 	{
@@ -173,6 +187,10 @@ public class HospitalDataService
 		_treatments.Add(treatment);
 	}
 
+	// -------------------------
+	// CONSULTATIES
+	// -------------------------
+
 	public IReadOnlyList<Consultation> GetConsultations(int patientId)
 	{
 		return _consultations
@@ -196,10 +214,24 @@ public class HospitalDataService
 		_consultations.Add(consultation);
 	}
 
+	// -------------------------
+	// OPERATIEKAMERS
+	// -------------------------
+
 	public IReadOnlyList<OperatingRoom> GetOperatingRooms()
 	{
 		return _operatingRooms;
 	}
+
+	public OperatingRoom? GetOperatingRoom(int id)
+	{
+		return _operatingRooms
+			.FirstOrDefault(r => r.Id == id);
+	}
+
+	// -------------------------
+	// OPERATIES
+	// -------------------------
 
 	public IReadOnlyList<Operation> GetOperations(int patientId)
 	{
@@ -207,5 +239,20 @@ public class HospitalDataService
 			.Where(o => o.PatientId == patientId)
 			.OrderBy(o => o.StartTime)
 			.ToList();
+	}
+
+	public Operation? GetOperation(int operationId)
+	{
+		return _operations
+			.FirstOrDefault(o => o.Id == operationId);
+	}
+
+	public void AddOperation(Operation operation)
+	{
+		operation.Id = _operations.Count == 0
+			? 1
+			: _operations.Max(o => o.Id) + 1;
+
+		_operations.Add(operation);
 	}
 }
