@@ -1,0 +1,159 @@
+﻿@model Hospital.Domain.Models.Treatment
+@using Hospital.Domain.Models
+@using Hospital.Domain.Enums
+
+@{
+    ViewData["Title"] = "Nieuwe behandeling";
+
+    var patient =
+        ViewBag.Patient as Patient;
+
+    var secretaries =
+        ViewBag.Secretaries as IReadOnlyList<StaffMember>
+        ?? Array.Empty<StaffMember>();
+
+    var surgeons =
+        ViewBag.Surgeons as IReadOnlyList<StaffMember>
+        ?? Array.Empty<StaffMember>();
+
+    var nurses =
+        ViewBag.Nurses as IReadOnlyList<StaffMember>
+        ?? Array.Empty<StaffMember>();
+}
+
+<a asp-controller="Treatments"
+       asp-action="Index"
+       asp-route-patientId="@patient?.Id">
+    ← Terug naar behandelingen
+</a>
+
+<h1>Nieuwe behandeling starten</h1>
+
+@if (patient is not null)
+{
+    <p>
+        Patiënt:
+        <strong>@patient.FullName</strong>
+    </p>
+}
+
+<form asp-action="Create" method="post">
+
+    <input asp-for="PatientId" type="hidden" />
+
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <div>
+        <label asp-for="Name">
+            Naam behandeling
+        </label>
+
+        <input asp-for="Name" />
+
+        <span asp-validation-for="Name"></span>
+    </div>
+
+    <div>
+        <label asp-for="Description">
+            Omschrijving
+        </label>
+
+        <textarea asp-for="Description"
+                  rows="4"></textarea>
+
+        <span asp-validation-for="Description"></span>
+    </div>
+
+    <div>
+        <label asp-for="StartDate">
+            Startdatum
+        </label>
+
+        <input asp-for="StartDate"
+               type="date" />
+    </div>
+
+    <div>
+        <label asp-for="Status">
+            Status
+        </label>
+
+        <select asp-for="Status"
+                asp-items="Html.GetEnumSelectList<TreatmentStatus>()">
+        </select>
+    </div>
+
+    <div>
+        <label asp-for="SecretaryId">
+            Verantwoordelijke secretaresse
+        </label>
+
+        <select asp-for="SecretaryId">
+
+            <option value="">
+                Selecteer een secretaresse
+            </option>
+
+            @foreach (var secretary in secretaries)
+            {
+                <option value="@secretary.Id">
+                    @secretary.FullName
+                </option>
+            }
+
+        </select>
+
+        <span asp-validation-for="SecretaryId"></span>
+    </div>
+
+    <div>
+        <label>
+            Chirurg(en)
+        </label>
+
+        @foreach (var surgeon in surgeons)
+        {
+            <div>
+                <input type="checkbox"
+                       name="SurgeonIds"
+                       value="@surgeon.Id"
+                       id="surgeon-@surgeon.Id" />
+
+                <label for="surgeon-@surgeon.Id">
+                    @surgeon.FullName
+                </label>
+            </div>
+        }
+
+        <span asp-validation-for="SurgeonIds"></span>
+    </div>
+
+    <div>
+        <label>
+            Verpleegkundige(n)
+        </label>
+
+        @foreach (var nurse in nurses)
+        {
+            <div>
+                <input type="checkbox"
+                       name="NurseIds"
+                       value="@nurse.Id"
+                       id="nurse-@nurse.Id" />
+
+                <label for="nurse-@nurse.Id">
+                    @nurse.FullName
+                </label>
+            </div>
+        }
+
+        <span asp-validation-for="NurseIds"></span>
+    </div>
+
+    <br />
+
+    <button type="submit">
+        Behandeling starten
+    </button>
+
+</form>

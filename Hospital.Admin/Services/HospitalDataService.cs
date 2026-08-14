@@ -138,11 +138,33 @@ public class HospitalDataService
 		return _staffMembers;
 	}
 
+	public IReadOnlyList<StaffMember> GetStaffMembersByRole(UserRole role)
+	{
+		return _staffMembers
+			.Where(s => s.Role == role)
+			.ToList();
+	}
+
 	public IReadOnlyList<Treatment> GetTreatments(int patientId)
 	{
 		return _treatments
 			.Where(t => t.PatientId == patientId)
 			.ToList();
+	}
+
+	public Treatment? GetTreatment(int treatmentId)
+	{
+		return _treatments
+			.FirstOrDefault(t => t.Id == treatmentId);
+	}
+
+	public void AddTreatment(Treatment treatment)
+	{
+		treatment.Id = _treatments.Count == 0
+			? 1
+			: _treatments.Max(t => t.Id) + 1;
+
+		_treatments.Add(treatment);
 	}
 
 	public IReadOnlyList<Consultation> GetConsultations(int patientId)

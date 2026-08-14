@@ -1,0 +1,38 @@
+﻿@model Hospital.Domain.Models.Treatment
+@using Hospital.Domain.Models
+
+@{
+    ViewData["Title"] = "Behandeling";
+
+    var patient =
+        ViewBag.Patient as Patient;
+}
+
+<a asp-controller="Treatments"
+       asp-action="Index"
+       asp-route-patientId="@Model.PatientId">
+    ← Terug naar behandelingen
+</a>
+
+<h1>@Model.Name</h1>
+
+@if (patient is not null)
+{
+    <p>
+        Patiënt:
+        <strong>@patient.FullName</strong>
+    </p>
+}
+
+<h2>Behandelgegevens</h2>
+
+<dl>
+    <dt>Omschrijving</dt>
+    <dd>@Model.Description</dd>
+
+    <dt>Startdatum</dt>
+    <dd>@Model.StartDate.ToString("dd-MM-yyyy")</dd>
+
+    <dt>Status</dt>
+    <dd>@Model.Status</dd>
+</dl>
