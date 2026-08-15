@@ -37,7 +37,8 @@
     </p>
 }
 
-<form asp-action="Create"
+<form asp-controller="Operations"
+      asp-action="Create"
       method="post">
 
     <input asp-for="PatientId"
@@ -51,7 +52,6 @@
         </label>
 
         <select asp-for="TreatmentId">
-
             <option value="">
                 Selecteer een behandeling
             </option>
@@ -62,7 +62,6 @@
                     @treatment.Name
                 </option>
             }
-
         </select>
 
         <span asp-validation-for="TreatmentId"></span>
@@ -86,82 +85,94 @@
 
         <textarea asp-for="Description"
                   rows="4"
-                      placeholder="Beschrijf kort wat er tijdens de operatie gebeurt.">
-        </textarea>
+                  placeholder="Beschrijf kort wat er tijdens de operatie gebeurt."></textarea>
 
-            <span asp-validation-for="Description"></span>
-        </div>
+        <span asp-validation-for="Description"></span>
+    </div>
 
-        <div>
-            <label asp-for="StartTime">
-                Datum en tijd
-            </label>
+    <div>
+        <label asp-for="StartTime">
+            Datum en tijd
+        </label>
 
-            <input asp-for="StartTime"
-                   type="datetime-local" />
+        <input asp-for="StartTime"
+               type="datetime-local" />
 
-            <span asp-validation-for="StartTime"></span>
-        </div>
+        <span asp-validation-for="StartTime"></span>
+    </div>
 
-        <div>
-            <label asp-for="OperatingRoomId">
-                Operatiekamer
-            </label>
+    <div>
+        <label asp-for="DurationMinutes">
+            Duur in minuten
+        </label>
 
-            <select asp-for="OperatingRoomId">
+        <input asp-for="DurationMinutes"
+               type="number"
+               min="1"
+               step="1" />
 
-                <option value="">
-                    Selecteer een operatiekamer
-                </option>
+        <span asp-validation-for="DurationMinutes"></span>
+    </div>
 
-                @foreach (var room in operatingRooms)
-                {
-                    <option value="@room.Id">
-                        @room.Name - @room.Location
-                    </option>
-                }
+    <div>
+        <label asp-for="OperatingRoomId">
+            Operatiekamer
+        </label>
 
-            </select>
+        <select asp-for="OperatingRoomId">
+            <option value="">
+                Selecteer een operatiekamer
+            </option>
 
-            <span asp-validation-for="OperatingRoomId"></span>
-        </div>
-
-        <div>
-            <label>
-                Chirurg(en)
-            </label>
-
-            @foreach (var surgeon in surgeons)
+            @foreach (var room in operatingRooms)
             {
-                <div>
-                    <input type="checkbox"
-                           name="SurgeonIds"
-                           value="@surgeon.Id"
-                           id="surgeon-@surgeon.Id" />
-
-                    <label for="surgeon-@surgeon.Id">
-                        @surgeon.FullName
-                    </label>
-                </div>
+                <option value="@room.Id">
+                    @room.Name - @room.Location
+                </option>
             }
+        </select>
 
-            <span asp-validation-for="SurgeonIds"></span>
-        </div>
+        <span asp-validation-for="OperatingRoomId"></span>
+    </div>
 
-        <div>
-            <label asp-for="Status">
-                Status
-            </label>
+    <div>
+        <label>
+            Chirurg(en)
+        </label>
 
-            <select asp-for="Status"
-                    asp-items="Html.GetEnumSelectList<AppointmentStatus>()">
-            </select>
-        </div>
+        @foreach (var surgeon in surgeons)
+        {
+            <div>
+                <input type="checkbox"
+                       name="SurgeonIds"
+                       value="@surgeon.Id"
+                       id="surgeon-@surgeon.Id"
+                       checked="@Model.SurgeonIds.Contains(surgeon.Id)" />
 
-        <br />
+                <label for="surgeon-@surgeon.Id">
+                    @surgeon.FullName
+                </label>
+            </div>
+        }
 
-        <button type="submit">
-            Operatie plannen
-        </button>
+        <span asp-validation-for="SurgeonIds"></span>
+    </div>
 
-    </form>
+    <div>
+        <label asp-for="Status">
+            Status
+        </label>
+
+        <select asp-for="Status"
+                asp-items="Html.GetEnumSelectList<AppointmentStatus>()">
+        </select>
+
+        <span asp-validation-for="Status"></span>
+    </div>
+
+    <br />
+
+    <button type="submit">
+        Operatie plannen
+    </button>
+</form>

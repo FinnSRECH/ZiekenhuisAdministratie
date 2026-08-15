@@ -28,13 +28,17 @@
     Bekijk geplande en eerdere operaties van deze patiënt.
 </p>
 
-<p>
-    <a asp-controller="Operations"
-           asp-action="Create"
-           asp-route-patientId="@patient?.Id">
-        Nieuwe operatie plannen
-    </a>
-</p>
+@if (User.IsInRole("Administrator") ||
+     User.IsInRole("Secretary"))
+{
+    <p>
+        <a asp-controller="Operations"
+               asp-action="Create"
+               asp-route-patientId="@patient?.Id">
+            Nieuwe operatie plannen
+        </a>
+    </p>
+}
 
 @if (!Model.Any())
 {

@@ -1,5 +1,6 @@
 ﻿@model Hospital.Domain.Models.Treatment
 @using Hospital.Domain.Models
+@using Hospital.Domain.Enums
 
 @{
     ViewData["Title"] = "Behandeling";
@@ -15,6 +16,20 @@
 </a>
 
 <h1>@Model.Name</h1>
+
+@if (TempData["Success"] is string success)
+{
+    <div>
+        <strong>@success</strong>
+    </div>
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div>
+        <strong>@error</strong>
+    </div>
+}
 
 @if (patient is not null)
 {
@@ -36,3 +51,27 @@
     <dt>Status</dt>
     <dd>@Model.Status</dd>
 </dl>
+
+@if (Model.Status == TreatmentStatus.Active &&
+     (User.IsInRole("Administrator") ||
+      User.IsInRole("Secretary")))
+{
+    <h2>Behandeling afsluiten</h2>
+
+    <p>
+        Hiermee wordt de behandeling als afgerond gemarkeerd.
+    </p>
+
+    <form asp-controller="Treatments"
+          asp-action="Complete"
+          asp-route-id="@Model.Id"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <button type="submit"
+                onclick="return confirm('Weet je zeker dat je deze behandeling wilt afsluiten?');">
+            Behandeling afsluiten
+        </button>
+    </form>
+}

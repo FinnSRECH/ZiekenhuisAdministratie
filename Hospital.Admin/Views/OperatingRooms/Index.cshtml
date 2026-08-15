@@ -1,0 +1,112 @@
+﻿@model IReadOnlyList<Hospital.Domain.Models.OperatingRoom>
+
+@{
+    ViewData["Title"] = "Operatiekamers";
+}
+
+<h1>Operatiekamers</h1>
+
+<p>
+    Beheer de operatiekamers en hun beschikbaarheid.
+</p>
+
+<p>
+    <a asp-controller="OperatingRooms"
+           asp-action="Create">
+        Nieuwe operatiekamer toevoegen
+    </a>
+</p>
+
+@if (TempData["Success"] is string success)
+{
+    <div>
+        <strong>@success</strong>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <p>
+        Er zijn nog geen operatiekamers geregistreerd.
+    </p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Naam</th>
+                <th>Locatie</th>
+                <th>Status</th>
+                <th>Actie</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var operatingRoom in Model)
+            {
+                <tr>
+                    <td>
+                        @operatingRoom.Name
+                    </td>
+
+                    <td>
+                        @operatingRoom.Location
+                    </td>
+
+                    <td>
+                        @if (operatingRoom.IsAvailable)
+                        {
+                            <span>Beschikbaar</span>
+                        }
+                        else
+                        {
+                            <span>Onbeschikbaar</span>
+                        }
+                    </td>
+
+                    <td>
+                        @if (operatingRoom.IsAvailable)
+                        {
+                            <form asp-controller="OperatingRooms"
+                                  asp-action="SetAvailability"
+                                  method="post">
+
+                                <input type="hidden"
+                                       name="id"
+                                       value="@operatingRoom.Id" />
+
+                                <input type="hidden"
+                                       name="isAvailable"
+                                       value="false" />
+
+                                <button type="submit">
+                                    Onbeschikbaar maken
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-controller="OperatingRooms"
+                                  asp-action="SetAvailability"
+                                  method="post">
+
+                                <input type="hidden"
+                                       name="id"
+                                       value="@operatingRoom.Id" />
+
+                                <input type="hidden"
+                                       name="isAvailable"
+                                       value="true" />
+
+                                <button type="submit">
+                                    Beschikbaar maken
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

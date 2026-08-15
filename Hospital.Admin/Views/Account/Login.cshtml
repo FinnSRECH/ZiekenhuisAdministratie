@@ -1,0 +1,53 @@
+﻿@{
+    ViewData["Title"] = "Inloggen";
+}
+
+<h1>Medewerkersportaal</h1>
+
+<p>
+    Log in met uw medewerkersaccount.
+</p>
+
+@if (ViewBag.Error is string error)
+{
+    <div>
+        <strong>@error</strong>
+    </div>
+}
+
+<form asp-controller="Account"
+      asp-action="Login"
+      method="post">
+
+    <div>
+        <label for="email">
+            E-mailadres
+        </label>
+
+        <input id="email"
+               name="email"
+               type="email"
+               value="@ViewBag.Email"
+               required
+               autocomplete="username" />
+    </div>
+
+    <div>
+        <label for="password">
+            Wachtwoord
+        </label>
+
+        <input id="password"
+               name="password"
+               type="password"
+               required
+               autocomplete="current-password" />
+    </div>
+
+    <br />
+
+    <button type="submit">
+        Inloggen
+    </button>
+
+</form>

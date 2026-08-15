@@ -1,4 +1,5 @@
 using Hospital.Admin.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Hospital.Admin
 {
@@ -8,11 +9,32 @@ namespace Hospital.Admin
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
-			// MVC toevoegen
 			builder.Services.AddControllersWithViews();
 
-			// Gedeelde ziekenhuisdata beschikbaar maken
+			// Services
 			builder.Services.AddSingleton<HospitalDataService>();
+			builder.Services.AddSingleton<PasswordService>();
+			builder.Services.AddSingleton<PatientAccessService>();
+
+			// Authenticatie
+			builder.Services
+				.AddAuthentication(
+					CookieAuthenticationDefaults.AuthenticationScheme)
+				.AddCookie(options =>
+				{
+					options.LoginPath = "/Account/Login";
+					options.AccessDeniedPath = "/Account/AccessDenied";
+
+					options.Cookie.Name =
+						"Hospital.Admin.Auth";
+
+					options.Cookie.HttpOnly = true;
+
+					options.Cookie.SameSite =
+						SameSiteMode.Lax;
+				});
+
+			builder.Services.AddAuthorization();
 
 			var app = builder.Build();
 
@@ -25,6 +47,7 @@ namespace Hospital.Admin
 			app.UseHttpsRedirection();
 			app.UseRouting();
 
+			app.UseAuthentication();
 			app.UseAuthorization();
 
 			app.MapStaticAssets();

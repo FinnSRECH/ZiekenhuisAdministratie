@@ -1,0 +1,83 @@
+﻿@model IReadOnlyList<Hospital.Domain.Models.AuditLog>
+
+@{
+    ViewData["Title"] = "Auditlog";
+}
+
+<h1>Auditlog</h1>
+
+<p>
+    Overzicht van geregistreerde inzages en acties binnen patiëntendossiers.
+</p>
+
+@if (!Model.Any())
+{
+    <p>
+        Er zijn nog geen auditgegevens geregistreerd.
+    </p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Gebruiker</th>
+                <th>Patiënt</th>
+                <th>Actie</th>
+                <th>Onderdeel</th>
+                <th>Geopend</th>
+                <th>Gesloten</th>
+                <th>Duur</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var auditLog in Model)
+            {
+                <tr>
+                    <td>
+                        @auditLog.UserName
+                    </td>
+
+                    <td>
+                        @auditLog.PatientName
+                    </td>
+
+                    <td>
+                        @auditLog.Action
+                    </td>
+
+                    <td>
+                        @auditLog.Resource
+                    </td>
+
+                    <td>
+                        @auditLog.OpenedAt.ToString("dd-MM-yyyy HH:mm:ss")
+                    </td>
+
+                    <td>
+                        @if (auditLog.ClosedAt is not null)
+                        {
+                            @auditLog.ClosedAt.Value.ToString("dd-MM-yyyy HH:mm:ss")
+                        }
+                        else
+                        {
+                            <span>Actief</span>
+                        }
+                    </td>
+
+                    <td>
+                        @if (auditLog.Duration is not null)
+                        {
+                            @auditLog.Duration.Value.ToString(@"hh\:mm\:ss")
+                        }
+                        else
+                        {
+                            <span>Actief</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

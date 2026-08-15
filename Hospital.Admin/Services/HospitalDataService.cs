@@ -5,6 +5,8 @@ namespace Hospital.Admin.Services;
 
 public class HospitalDataService
 {
+	private readonly PasswordService _passwordService;
+
 	private readonly List<Patient> _patients = new()
 	{
 		new Patient
@@ -68,6 +70,15 @@ public class HospitalDataService
 			LastName = "Smit",
 			Email = "mark.smit@hospital.nl",
 			Role = UserRole.Secretary
+		},
+
+		new StaffMember
+		{
+			Id = 4,
+			FirstName = "Anna",
+			LastName = "Beheer",
+			Email = "admin@hospital.nl",
+			Role = UserRole.Administrator
 		}
 	};
 
@@ -123,6 +134,27 @@ public class HospitalDataService
 
 	private readonly List<Operation> _operations = new();
 
+	private readonly List<AuditLog> _auditLogs = new();
+
+	private int _auditLogId = 1;
+
+	// -------------------------
+	// CONSTRUCTOR
+	// -------------------------
+
+	public HospitalDataService(
+		PasswordService passwordService)
+	{
+		_passwordService = passwordService;
+
+		foreach (var staffMember in _staffMembers)
+		{
+			staffMember.PasswordHash =
+				_passwordService.HashPassword(
+					"Welkom123!");
+		}
+	}
+
 	// -------------------------
 	// PATIENTEN
 	// -------------------------
@@ -144,7 +176,10 @@ public class HospitalDataService
 
 	public IReadOnlyList<StaffMember> GetStaffMembers()
 	{
-		return _staffMembers;
+		return _staffMembers
+			.OrderBy(s => s.LastName)
+			.ThenBy(s => s.FirstName)
+			.ToList();
 	}
 
 	public StaffMember? GetStaffMember(int id)
@@ -153,63 +188,171 @@ public class HospitalDataService
 			.FirstOrDefault(s => s.Id == id);
 	}
 
-	public IReadOnlyList<StaffMember> GetStaffMembersByRole(UserRole role)
+	public StaffMember? GetStaffMemberByEmail(
+		string email)
 	{
 		return _staffMembers
-			.Where(s => s.Role == role)
+			.FirstOrDefault(s =>
+				s.Email.Equals(
+					email,
+					StringComparison.OrdinalIgnoreCase));
+	}
+
+	public IReadOnlyList<StaffMember>
+		GetStaffMembersByRole(UserRole role)
+	{
+		return _staffMembers
+			.Where(s =>
+				s.Role == role &&
+				s.IsActive)
+			.OrderBy(s => s.LastName)
+			.ThenBy(s => s.FirstName)
 			.ToList();
+	}
+
+	public bool StaffEmailExists(string email)
+	{
+		return _staffMembers.Any(s =>
+			s.Email.Equals(
+				email,
+				StringComparison.OrdinalIgnoreCase));
+	}
+
+	public void AddStaffMember(
+		StaffMember staffMember,
+		string password)
+	{
+		staffMember.Id =
+			_staffMembers.Count == 0
+				? 1
+				: _staffMembers.Max(s => s.Id) + 1;
+
+		staffMember.Email =
+			staffMember.Email.Trim();
+
+		staffMember.PasswordHash =
+			_passwordService.HashPassword(
+				password);
+
+		staffMember.IsActive = true;
+
+		_staffMembers.Add(staffMember);
+	}
+
+	public bool DeactivateStaffMember(int id)
+	{
+		var staffMember =
+			GetStaffMember(id);
+
+		if (staffMember is null)
+		{
+			return false;
+		}
+
+		staffMember.IsActive = false;
+
+		return true;
 	}
 
 	// -------------------------
 	// BEHANDELINGEN
 	// -------------------------
 
-	public IReadOnlyList<Treatment> GetTreatments(int patientId)
+	public IReadOnlyList<Treatment> GetTreatments(
+		int patientId)
 	{
 		return _treatments
-			.Where(t => t.PatientId == patientId)
-			.OrderByDescending(t => t.StartDate)
+			.Where(t =>
+				t.PatientId == patientId)
+			.OrderByDescending(t =>
+				t.StartDate)
 			.ToList();
 	}
 
-	public Treatment? GetTreatment(int treatmentId)
+	public Treatment? GetActiveTreatment(
+		int patientId)
 	{
 		return _treatments
-			.FirstOrDefault(t => t.Id == treatmentId);
+			.FirstOrDefault(t =>
+				t.PatientId == patientId &&
+				t.Status == TreatmentStatus.Active);
 	}
 
-	public void AddTreatment(Treatment treatment)
+	public Treatment? GetTreatment(
+		int treatmentId)
 	{
-		treatment.Id = _treatments.Count == 0
-			? 1
-			: _treatments.Max(t => t.Id) + 1;
+		return _treatments
+			.FirstOrDefault(t =>
+				t.Id == treatmentId);
+	}
+
+	public void AddTreatment(
+	Treatment treatment)
+	{
+		treatment.Id =
+			_treatments.Count == 0
+				? 1
+				: _treatments.Max(t => t.Id) + 1;
 
 		_treatments.Add(treatment);
+	}
+
+	public bool CompleteTreatment(
+		int treatmentId)
+	{
+		var treatment =
+			GetTreatment(treatmentId);
+
+		if (treatment is null)
+		{
+			return false;
+		}
+
+		if (treatment.Status != TreatmentStatus.Active)
+		{
+			return false;
+		}
+
+		treatment.Status =
+			TreatmentStatus.Completed;
+
+		return true;
 	}
 
 	// -------------------------
 	// CONSULTATIES
 	// -------------------------
 
-	public IReadOnlyList<Consultation> GetConsultations(int patientId)
+	// -------------------------
+	// CONSULTATIES
+	// -------------------------
+
+	public IReadOnlyList<Consultation>
+		GetConsultations(int patientId)
 	{
 		return _consultations
-			.Where(c => c.PatientId == patientId)
-			.OrderBy(c => c.StartTime)
+			.Where(c =>
+				c.PatientId == patientId)
+			.OrderBy(c =>
+				c.StartTime)
 			.ToList();
 	}
 
-	public Consultation? GetConsultation(int consultationId)
+	public Consultation? GetConsultation(
+		int consultationId)
 	{
 		return _consultations
-			.FirstOrDefault(c => c.Id == consultationId);
+			.FirstOrDefault(c =>
+				c.Id == consultationId);
 	}
 
-	public void AddConsultation(Consultation consultation)
+	public void AddConsultation(
+		Consultation consultation)
 	{
-		consultation.Id = _consultations.Count == 0
-			? 1
-			: _consultations.Max(c => c.Id) + 1;
+		consultation.Id =
+			_consultations.Count == 0
+				? 1
+				: _consultations.Max(c => c.Id) + 1;
 
 		_consultations.Add(consultation);
 	}
@@ -218,41 +361,244 @@ public class HospitalDataService
 	// OPERATIEKAMERS
 	// -------------------------
 
-	public IReadOnlyList<OperatingRoom> GetOperatingRooms()
-	{
-		return _operatingRooms;
-	}
-
-	public OperatingRoom? GetOperatingRoom(int id)
+	public IReadOnlyList<OperatingRoom>
+		GetOperatingRooms()
 	{
 		return _operatingRooms
-			.FirstOrDefault(r => r.Id == id);
+			.OrderBy(r => r.Name)
+			.ToList();
+	}
+
+	public IReadOnlyList<OperatingRoom>
+		GetAvailableOperatingRooms()
+	{
+		return _operatingRooms
+			.Where(r => r.IsAvailable)
+			.OrderBy(r => r.Name)
+			.ToList();
+	}
+
+	public OperatingRoom? GetOperatingRoom(
+		int id)
+	{
+		return _operatingRooms
+			.FirstOrDefault(r =>
+				r.Id == id);
+	}
+
+	public bool OperatingRoomNameExists(
+		string name)
+	{
+		return _operatingRooms.Any(r =>
+			r.Name.Equals(
+				name.Trim(),
+				StringComparison.OrdinalIgnoreCase));
+	}
+
+	public void AddOperatingRoom(
+		OperatingRoom operatingRoom)
+	{
+		operatingRoom.Id =
+			_operatingRooms.Count == 0
+				? 1
+				: _operatingRooms.Max(r => r.Id) + 1;
+
+		operatingRoom.Name =
+			operatingRoom.Name.Trim();
+
+		operatingRoom.Location =
+			operatingRoom.Location.Trim();
+
+		operatingRoom.IsAvailable = true;
+
+		_operatingRooms.Add(
+			operatingRoom);
+	}
+
+	public bool SetOperatingRoomAvailability(
+		int id,
+		bool isAvailable)
+	{
+		var operatingRoom =
+			GetOperatingRoom(id);
+
+		if (operatingRoom is null)
+		{
+			return false;
+		}
+
+		operatingRoom.IsAvailable =
+			isAvailable;
+
+		return true;
 	}
 
 	// -------------------------
 	// OPERATIES
 	// -------------------------
 
-	public IReadOnlyList<Operation> GetOperations(int patientId)
+	public IReadOnlyList<Operation> GetOperations(
+		int patientId)
 	{
 		return _operations
-			.Where(o => o.PatientId == patientId)
-			.OrderBy(o => o.StartTime)
+			.Where(o =>
+				o.PatientId == patientId)
+			.OrderBy(o =>
+				o.StartTime)
 			.ToList();
 	}
 
-	public Operation? GetOperation(int operationId)
+	public Operation? GetOperation(
+		int operationId)
 	{
 		return _operations
-			.FirstOrDefault(o => o.Id == operationId);
+			.FirstOrDefault(o =>
+				o.Id == operationId);
 	}
 
-	public void AddOperation(Operation operation)
+	public bool HasOperatingRoomConflict(
+		Operation operation)
 	{
-		operation.Id = _operations.Count == 0
-			? 1
-			: _operations.Max(o => o.Id) + 1;
+		var newStart =
+			operation.StartTime;
+
+		var newEnd =
+			operation.EndTime;
+
+		return _operations.Any(
+			existingOperation =>
+				existingOperation.OperatingRoomId ==
+					operation.OperatingRoomId &&
+
+				existingOperation.Status !=
+					AppointmentStatus.Cancelled &&
+
+				newStart <
+					existingOperation.EndTime &&
+
+				newEnd >
+					existingOperation.StartTime);
+	}
+
+	public bool HasSurgeonConflict(
+		Operation operation)
+	{
+		var newStart =
+			operation.StartTime;
+
+		var newEnd =
+			operation.EndTime;
+
+		return _operations.Any(
+			existingOperation =>
+				existingOperation.Status !=
+					AppointmentStatus.Cancelled &&
+
+				existingOperation.SurgeonIds.Any(
+					surgeonId =>
+						operation.SurgeonIds.Contains(
+							surgeonId)) &&
+
+				newStart <
+					existingOperation.EndTime &&
+
+				newEnd >
+					existingOperation.StartTime);
+	}
+
+	public void AddOperation(
+		Operation operation)
+	{
+		operation.Id =
+			_operations.Count == 0
+				? 1
+				: _operations.Max(o => o.Id) + 1;
 
 		_operations.Add(operation);
+	}
+
+	// -------------------------
+	// AUDITLOG
+	// -------------------------
+
+	public int StartAuditLog(
+		int userId,
+		string userName,
+		int patientId,
+		string patientName,
+		string action,
+		string resource)
+	{
+		CloseActiveAuditLogs(userId);
+
+		var auditLog = new AuditLog
+		{
+			Id = _auditLogId++,
+			UserId = userId,
+			UserName = userName,
+			PatientId = patientId,
+			PatientName = patientName,
+			Action = action,
+			Resource = resource,
+			OpenedAt = DateTime.Now
+		};
+
+		if (!action.Equals(
+				"Raadplegen",
+				StringComparison.OrdinalIgnoreCase))
+		{
+			auditLog.ClosedAt =
+				DateTime.Now;
+		}
+
+		_auditLogs.Add(auditLog);
+
+		return auditLog.Id;
+	}
+
+	public void CloseAuditLog(
+		int auditLogId)
+	{
+		var auditLog =
+			_auditLogs.FirstOrDefault(a =>
+				a.Id == auditLogId);
+
+		if (auditLog is null)
+		{
+			return;
+		}
+
+		if (auditLog.ClosedAt is null)
+		{
+			auditLog.ClosedAt =
+				DateTime.Now;
+		}
+	}
+
+	public void CloseActiveAuditLogs(
+		int userId)
+	{
+		var activeLogs =
+			_auditLogs
+				.Where(a =>
+					a.UserId == userId &&
+					a.ClosedAt == null)
+				.ToList();
+
+		foreach (var auditLog
+				 in activeLogs)
+		{
+			auditLog.ClosedAt =
+				DateTime.Now;
+		}
+	}
+
+	public IReadOnlyList<AuditLog>
+		GetAuditLogs()
+	{
+		return _auditLogs
+			.OrderByDescending(a =>
+				a.OpenedAt)
+			.ToList();
 	}
 }

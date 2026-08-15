@@ -15,6 +15,20 @@
 
 <h1>Behandelingen</h1>
 
+@if (TempData["Success"] is string success)
+{
+    <div>
+        <strong>@success</strong>
+    </div>
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div>
+        <strong>@error</strong>
+    </div>
+}
+
 @if (patient is not null)
 {
     <p>
@@ -27,13 +41,17 @@
     Bekijk actieve en eerdere behandelingen van deze patiënt.
 </p>
 
-<p>
-    <a asp-controller="Treatments"
-           asp-action="Create"
-           asp-route-patientId="@patient?.Id">
-        Nieuwe behandeling starten
-    </a>
-</p>
+@if (User.IsInRole("Administrator") ||
+     User.IsInRole("Secretary"))
+{
+    <p>
+        <a asp-controller="Treatments"
+               asp-action="Create"
+               asp-route-patientId="@patient?.Id">
+            Nieuwe behandeling starten
+        </a>
+    </p>
+}
 
 @if (!Model.Any())
 {

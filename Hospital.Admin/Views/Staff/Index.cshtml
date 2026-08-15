@@ -1,0 +1,115 @@
+﻿@model IReadOnlyList<Hospital.Domain.Models.StaffMember>
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Medewerkers";
+
+    var currentUserId =
+        User.FindFirstValue(ClaimTypes.NameIdentifier);
+}
+
+<h1>Medewerkers</h1>
+
+<p>
+    Beheer de medewerkers en hun toegang tot het ziekenhuissysteem.
+</p>
+
+<p>
+    <a asp-controller="Staff"
+           asp-action="Create">
+        Nieuwe medewerker toevoegen
+    </a>
+</p>
+
+@if (TempData["Success"] is string success)
+{
+    <div>
+        <strong>@success</strong>
+    </div>
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div>
+        <strong>@error</strong>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <p>
+        Er zijn nog geen medewerkers geregistreerd.
+    </p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Naam</th>
+                <th>E-mailadres</th>
+                <th>Rol</th>
+                <th>Status</th>
+                <th>Actie</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var staffMember in Model)
+            {
+                <tr>
+                    <td>
+                        @staffMember.FullName
+                    </td>
+
+                    <td>
+                        @staffMember.Email
+                    </td>
+
+                    <td>
+                        @staffMember.Role
+                    </td>
+
+                    <td>
+                        @if (staffMember.IsActive)
+                        {
+                            <span>Actief</span>
+                        }
+                        else
+                        {
+                            <span>Inactief</span>
+                        }
+                    </td>
+
+                    <td>
+                        @if (staffMember.IsActive &&
+                             staffMember.Id.ToString() != currentUserId)
+                        {
+                            <form asp-controller="Staff"
+                                  asp-action="Deactivate"
+                                  asp-route-id="@staffMember.Id"
+                                  method="post">
+
+                                <button type="submit">
+                                    Deactiveren
+                                </button>
+                            </form>
+                        }
+                        else if (staffMember.Id.ToString() == currentUserId)
+                        {
+                            <span>
+                                Huidige gebruiker
+                            </span>
+                        }
+                        else
+                        {
+                            <span>
+                                Geen actie
+                            </span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

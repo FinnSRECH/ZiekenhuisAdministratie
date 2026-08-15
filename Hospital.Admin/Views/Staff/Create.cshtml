@@ -1,0 +1,97 @@
+﻿@model Hospital.Domain.Models.StaffMember
+@using Hospital.Domain.Enums
+
+@{
+    ViewData["Title"] = "Nieuwe medewerker";
+}
+
+<a asp-controller="Staff"
+       asp-action="Index">
+    ← Terug naar medewerkers
+</a>
+
+<h1>Nieuwe medewerker</h1>
+
+<p>
+    Maak een nieuw medewerkersaccount aan en wijs de juiste rol toe.
+</p>
+
+<form asp-controller="Staff"
+      asp-action="Create"
+      method="post">
+
+    <div>
+        <label asp-for="FirstName">
+            Voornaam
+        </label>
+
+        <input asp-for="FirstName"
+               autocomplete="given-name" />
+
+        <span asp-validation-for="FirstName"></span>
+    </div>
+
+    <div>
+        <label asp-for="LastName">
+            Achternaam
+        </label>
+
+        <input asp-for="LastName"
+               autocomplete="family-name" />
+
+        <span asp-validation-for="LastName"></span>
+    </div>
+
+    <div>
+        <label asp-for="Email">
+            E-mailadres
+        </label>
+
+        <input asp-for="Email"
+               type="email"
+               autocomplete="email" />
+
+        <span asp-validation-for="Email"></span>
+    </div>
+
+    <div>
+        <label asp-for="Role">
+            Rol
+        </label>
+
+        <select asp-for="Role">
+            @foreach (var role in (UserRole[])ViewBag.Roles)
+            {
+                <option value="@role">
+                    @role
+                </option>
+            }
+        </select>
+
+        <span asp-validation-for="Role"></span>
+    </div>
+
+    <div>
+        <label for="password">
+            Wachtwoord
+        </label>
+
+        <input id="password"
+               name="password"
+               type="password"
+               autocomplete="new-password" />
+
+        @if (ViewData.ModelState["password"]?.Errors.Count > 0)
+        {
+            <span>
+                @ViewData.ModelState["password"]!.Errors[0].ErrorMessage
+            </span>
+        }
+    </div>
+
+    <br />
+
+    <button type="submit">
+        Medewerker toevoegen
+    </button>
+</form>

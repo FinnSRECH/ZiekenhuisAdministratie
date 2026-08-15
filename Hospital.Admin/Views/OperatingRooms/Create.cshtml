@@ -1,0 +1,47 @@
+﻿@model Hospital.Domain.Models.OperatingRoom
+
+@{
+    ViewData["Title"] = "Nieuwe operatiekamer";
+}
+
+<a asp-controller="OperatingRooms"
+       asp-action="Index">
+    ← Terug naar operatiekamers
+</a>
+
+<h1>Nieuwe operatiekamer</h1>
+
+<p>
+    Voeg een nieuwe operatiekamer toe aan het ziekenhuissysteem.
+</p>
+
+<form asp-controller="OperatingRooms"
+      asp-action="Create"
+      method="post">
+
+    <div>
+        <label asp-for="Name">
+            Naam
+        </label>
+
+        <input asp-for="Name" />
+
+        <span asp-validation-for="Name"></span>
+    </div>
+
+    <div>
+        <label asp-for="Location">
+            Locatie
+        </label>
+
+        <input asp-for="Location" />
+
+        <span asp-validation-for="Location"></span>
+    </div>
+
+    <br />
+
+    <button type="submit">
+        Operatiekamer toevoegen
+    </button>
+</form>

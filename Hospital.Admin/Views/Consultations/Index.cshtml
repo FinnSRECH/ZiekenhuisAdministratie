@@ -9,12 +9,13 @@
 }
 
 <a asp-controller="Patients"
-   asp-action="Details"
-   asp-route-id="@patient?.Id">
+       asp-action="Details"
+       asp-route-id="@patient?.Id">
     ← Terug naar patiëntdossier
 </a>
 
 <h1>Consultaties</h1>
+
 @if (TempData["Success"] is string success)
 {
     <div>
@@ -41,13 +42,17 @@
     Bekijk de geplande en eerdere consultaties van deze patiënt.
 </p>
 
-<p>
-    <a asp-controller="Consultations"
-       asp-action="Create"
-       asp-route-patientId="@patient?.Id">
-        Nieuwe consultatie plannen
-    </a>
-</p>
+@if (User.IsInRole("Administrator") ||
+     User.IsInRole("Secretary"))
+{
+    <p>
+        <a asp-controller="Consultations"
+               asp-action="Create"
+               asp-route-patientId="@patient?.Id">
+            Nieuwe consultatie plannen
+        </a>
+    </p>
+}
 
 @if (!Model.Any())
 {

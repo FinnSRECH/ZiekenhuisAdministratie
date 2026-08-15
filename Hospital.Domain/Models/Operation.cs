@@ -16,6 +16,8 @@ public class Operation
 
 	public DateTime StartTime { get; set; }
 
+	public int DurationMinutes { get; set; } = 60;
+
 	public int OperatingRoomId { get; set; }
 
 	public List<int> SurgeonIds { get; set; } = new();
@@ -23,4 +25,7 @@ public class Operation
 	public AppointmentStatus Status { get; set; }
 
 	public string MedicalReport { get; set; } = string.Empty;
+
+	public DateTime EndTime =>
+		StartTime.AddMinutes(DurationMinutes);
 }
