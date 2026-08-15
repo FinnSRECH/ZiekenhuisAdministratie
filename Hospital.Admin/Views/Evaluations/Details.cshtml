@@ -1,0 +1,68 @@
+﻿@model Hospital.Domain.Models.Evaluation
+@using Hospital.Domain.Models
+
+@{
+    ViewData["Title"] = "Evaluatie";
+
+    var patient =
+        ViewBag.Patient as Patient;
+
+    var treatment =
+        ViewBag.Treatment as Treatment;
+
+    var staffMember =
+        ViewBag.StaffMember as StaffMember;
+}
+
+<a asp-controller="Evaluations"
+   asp-action="Index"
+   asp-route-patientId="@Model.PatientId">
+    ← Terug naar evaluaties
+</a>
+
+<h1>@Model.Title</h1>
+
+@if (patient is not null)
+{
+    <p>
+        Patiënt:
+        <strong>@patient.FullName</strong>
+    </p>
+}
+
+<h2>Evaluatiegegevens</h2>
+
+<dl>
+    <dt>Datum en tijd</dt>
+    <dd>@Model.CreatedAt.ToString("dd-MM-yyyy HH:mm")</dd>
+
+    <dt>Behandeling</dt>
+    <dd>
+        @if (treatment is not null)
+        {
+            @treatment.Name
+        }
+        else
+        {
+            <span>Onbekend</span>
+        }
+    </dd>
+
+    <dt>Geregistreerd door</dt>
+    <dd>
+        @if (staffMember is not null)
+        {
+            @staffMember.FullName
+        }
+        else
+        {
+            <span>Onbekende medewerker</span>
+        }
+    </dd>
+
+    <dt>Titel</dt>
+    <dd>@Model.Title</dd>
+
+    <dt>Evaluatie</dt>
+    <dd>@Model.Description</dd>
+</dl>

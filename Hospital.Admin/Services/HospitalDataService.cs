@@ -134,6 +134,9 @@ public class HospitalDataService
 
 	private readonly List<Operation> _operations = new();
 
+	// Evaluaties van patiënten/behandelingen.
+	private readonly List<Evaluation> _evaluations = new();
+
 	private readonly List<AuditLog> _auditLogs = new();
 
 	private int _auditLogId = 1;
@@ -287,7 +290,7 @@ public class HospitalDataService
 	}
 
 	public void AddTreatment(
-	Treatment treatment)
+		Treatment treatment)
 	{
 		treatment.Id =
 			_treatments.Count == 0
@@ -318,10 +321,6 @@ public class HospitalDataService
 
 		return true;
 	}
-
-	// -------------------------
-	// CONSULTATIES
-	// -------------------------
 
 	// -------------------------
 	// CONSULTATIES
@@ -515,6 +514,43 @@ public class HospitalDataService
 				: _operations.Max(o => o.Id) + 1;
 
 		_operations.Add(operation);
+	}
+
+	// -------------------------
+	// EVALUATIES
+	// -------------------------
+
+	public IReadOnlyList<Evaluation> GetEvaluations(
+		int patientId)
+	{
+		return _evaluations
+			.Where(e =>
+				e.PatientId == patientId)
+			.OrderByDescending(e =>
+				e.CreatedAt)
+			.ToList();
+	}
+
+	public Evaluation? GetEvaluation(
+		int evaluationId)
+	{
+		return _evaluations
+			.FirstOrDefault(e =>
+				e.Id == evaluationId);
+	}
+
+	public void AddEvaluation(
+		Evaluation evaluation)
+	{
+		evaluation.Id =
+			_evaluations.Count == 0
+				? 1
+				: _evaluations.Max(e => e.Id) + 1;
+
+		evaluation.CreatedAt =
+			DateTime.Now;
+
+		_evaluations.Add(evaluation);
 	}
 
 	// -------------------------

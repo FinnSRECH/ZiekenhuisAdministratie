@@ -1,0 +1,97 @@
+﻿@model IReadOnlyList<Hospital.Domain.Models.Evaluation>
+@using Hospital.Domain.Models
+
+@{
+    ViewData["Title"] = "Evaluaties";
+
+    var patient =
+        ViewBag.Patient as Patient;
+}
+
+<a asp-controller="Patients"
+       asp-action="Details"
+       asp-route-id="@patient?.Id">
+    ← Terug naar patiëntdossier
+</a>
+
+<h1>Evaluaties</h1>
+
+@if (TempData["Success"] is string success)
+{
+    <div>
+        <strong>@success</strong>
+    </div>
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div>
+        <strong>@error</strong>
+    </div>
+}
+
+@if (patient is not null)
+{
+    <p>
+        Patiënt:
+        <strong>@patient.FullName</strong>
+    </p>
+}
+
+<p>
+    Bekijk de geregistreerde evaluaties van deze patiënt.
+</p>
+
+@if (User.IsInRole("Administrator") ||
+     User.IsInRole("Nurse"))
+{
+    <p>
+        <a asp-controller="Evaluations"
+               asp-action="Create"
+               asp-route-patientId="@patient?.Id">
+            Nieuwe evaluatie registreren
+        </a>
+    </p>
+}
+
+@if (!Model.Any())
+{
+    <p>
+        Voor deze patiënt zijn nog geen evaluaties geregistreerd.
+    </p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Datum</th>
+                <th>Titel</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var evaluation in Model)
+            {
+                <tr>
+                    <td>
+                        @evaluation.CreatedAt.ToString("dd-MM-yyyy HH:mm")
+                    </td>
+
+                    <td>
+                        @evaluation.Title
+                    </td>
+
+                    <td>
+                        <a asp-controller="Evaluations"
+                               asp-action="Details"
+                               asp-route-id="@evaluation.Id">
+                            Bekijken
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

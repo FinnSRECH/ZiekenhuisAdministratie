@@ -1,0 +1,89 @@
+﻿@model Hospital.Domain.Models.Evaluation
+@using Hospital.Domain.Models
+
+@{
+    ViewData["Title"] = "Evaluatie registreren";
+
+    var patient =
+        ViewBag.Patient as Patient;
+
+    var treatments =
+        ViewBag.Treatments as IReadOnlyList<Treatment>
+        ?? Array.Empty<Treatment>();
+}
+
+<a asp-controller="Evaluations"
+       asp-action="Index"
+       asp-route-patientId="@Model.PatientId">
+    ← Terug naar evaluaties
+</a>
+
+<h1>Nieuwe evaluatie registreren</h1>
+
+@if (patient is not null)
+{
+    <p>
+        Patiënt:
+        <strong>@patient.FullName</strong>
+    </p>
+}
+
+<form asp-controller="Evaluations"
+      asp-action="Create"
+      method="post">
+
+    <input asp-for="PatientId"
+           type="hidden" />
+
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <div>
+        <label asp-for="TreatmentId">
+            Behandeling
+        </label>
+
+        <select asp-for="TreatmentId">
+            <option value="">
+                Selecteer een behandeling
+            </option>
+
+            @foreach (var treatment in treatments)
+            {
+                <option value="@treatment.Id">
+                    @treatment.Name - @treatment.Status
+                </option>
+            }
+        </select>
+
+        <span asp-validation-for="TreatmentId"></span>
+    </div>
+
+    <div>
+        <label asp-for="Title">
+            Titel
+        </label>
+
+        <input asp-for="Title"
+               placeholder="Bijvoorbeeld: voortgang knieherstel" />
+
+        <span asp-validation-for="Title"></span>
+    </div>
+
+    <div>
+        <label asp-for="Description">
+            Evaluatie
+        </label>
+
+        <textarea asp-for="Description"
+                  rows="6"
+                  placeholder="Beschrijf de voortgang en bevindingen."></textarea>
+
+        <span asp-validation-for="Description"></span>
+    </div>
+
+    <br />
+
+    <button type="submit">
+        Evaluatie registreren
+    </button>
+</form>
