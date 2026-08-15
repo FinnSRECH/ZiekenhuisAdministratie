@@ -1,0 +1,96 @@
+﻿@model IReadOnlyList<Hospital.Domain.Models.PatientDocument>
+@using Hospital.Domain.Models
+
+@{
+    ViewData["Title"] = "Documenten";
+
+    var patient =
+        ViewBag.Patient as Patient;
+}
+
+<a asp-controller="Patients"
+       asp-action="Details"
+       asp-route-id="@patient?.Id">
+    ← Terug naar patiëntdossier
+</a>
+
+<h1>Documenten</h1>
+
+@if (TempData["Success"] is string success)
+{
+    <div>
+        <strong>@success</strong>
+    </div>
+}
+
+@if (patient is not null)
+{
+    <p>
+        Patiënt:
+        <strong>@patient.FullName</strong>
+    </p>
+}
+
+<p>
+    Bekijk de documenten die aan het patiëntdossier zijn toegevoegd.
+</p>
+
+@if (User.IsInRole("Administrator") ||
+     User.IsInRole("Secretary"))
+{
+    <p>
+        <a asp-controller="Documents"
+               asp-action="Create"
+               asp-route-patientId="@patient?.Id">
+            Document toevoegen
+        </a>
+    </p>
+}
+
+@if (!Model.Any())
+{
+    <p>
+        Voor deze patiënt zijn nog geen documenten toegevoegd.
+    </p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Bestandsnaam</th>
+                <th>Toegevoegd op</th>
+                <th>Toegevoegd door</th>
+                <th>Actie</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var document in Model)
+            {
+                <tr>
+                    <td>
+                        @document.FileName
+                    </td>
+
+                    <td>
+                        @document.UploadedAt.ToString(
+                            "dd-MM-yyyy HH:mm")
+                    </td>
+
+                    <td>
+                        @document.UploadedByUserName
+                    </td>
+
+                    <td>
+                        <a asp-controller="Documents"
+                               asp-action="Download"
+                               asp-route-id="@document.Id">
+                            Openen
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

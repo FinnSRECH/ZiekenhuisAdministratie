@@ -137,6 +137,9 @@ public class HospitalDataService
 	// Evaluaties van patiënten/behandelingen.
 	private readonly List<Evaluation> _evaluations = new();
 
+	// Documenten in patiëntendossiers.
+	private readonly List<PatientDocument> _patientDocuments = new();
+
 	private readonly List<AuditLog> _auditLogs = new();
 
 	private int _auditLogId = 1;
@@ -311,7 +314,8 @@ public class HospitalDataService
 			return false;
 		}
 
-		if (treatment.Status != TreatmentStatus.Active)
+		if (treatment.Status !=
+			TreatmentStatus.Active)
 		{
 			return false;
 		}
@@ -355,8 +359,9 @@ public class HospitalDataService
 
 		_consultations.Add(consultation);
 	}
+
 	public bool UpdateConsultation(
-	Consultation consultation)
+		Consultation consultation)
 	{
 		var existingConsultation =
 			GetConsultation(consultation.Id);
@@ -468,7 +473,7 @@ public class HospitalDataService
 	// -------------------------
 
 	public IReadOnlyList<Operation> GetOperations(
-	int patientId)
+		int patientId)
 	{
 		return _operations
 			.Where(o =>
@@ -498,9 +503,8 @@ public class HospitalDataService
 		return _operations.Any(
 			existingOperation =>
 
-				// Bij wijzigen mag een operatie
-				// niet met zichzelf conflicteren.
-				existingOperation.Id != operation.Id &&
+				existingOperation.Id !=
+					operation.Id &&
 
 				existingOperation.OperatingRoomId ==
 					operation.OperatingRoomId &&
@@ -527,9 +531,8 @@ public class HospitalDataService
 		return _operations.Any(
 			existingOperation =>
 
-				// Bij wijzigen mag een operatie
-				// niet met zichzelf conflicteren.
-				existingOperation.Id != operation.Id &&
+				existingOperation.Id !=
+					operation.Id &&
 
 				existingOperation.Status !=
 					AppointmentStatus.Cancelled &&
@@ -630,6 +633,43 @@ public class HospitalDataService
 			DateTime.Now;
 
 		_evaluations.Add(evaluation);
+	}
+
+	// -------------------------
+	// DOCUMENTEN
+	// -------------------------
+
+	public IReadOnlyList<PatientDocument>
+		GetPatientDocuments(int patientId)
+	{
+		return _patientDocuments
+			.Where(d =>
+				d.PatientId == patientId)
+			.OrderByDescending(d =>
+				d.UploadedAt)
+			.ToList();
+	}
+
+	public PatientDocument? GetPatientDocument(
+		int documentId)
+	{
+		return _patientDocuments
+			.FirstOrDefault(d =>
+				d.Id == documentId);
+	}
+
+	public void AddPatientDocument(
+		PatientDocument document)
+	{
+		document.Id =
+			_patientDocuments.Count == 0
+				? 1
+				: _patientDocuments.Max(d => d.Id) + 1;
+
+		document.UploadedAt =
+			DateTime.Now;
+
+		_patientDocuments.Add(document);
 	}
 
 	// -------------------------

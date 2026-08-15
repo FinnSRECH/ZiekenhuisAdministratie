@@ -39,7 +39,8 @@
 
 <p>
     Vanuit dit patiëntdossier kunnen behandelingen,
-    consultaties, operaties en evaluaties worden beheerd.
+    consultaties, operaties, evaluaties en documenten
+    worden beheerd.
 </p>
 
 <p>
@@ -71,5 +72,13 @@
            asp-action="Index"
            asp-route-patientId="@Model.Id">
         Evaluaties bekijken
+    </a>
+</p>
+
+<p>
+    <a asp-controller="Documents"
+           asp-action="Index"
+           asp-route-patientId="@Model.Id">
+        Documenten bekijken
     </a>
 </p>

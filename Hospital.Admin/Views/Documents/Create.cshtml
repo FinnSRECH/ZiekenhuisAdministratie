@@ -1,0 +1,65 @@
+﻿@using Hospital.Domain.Models
+
+@{
+    ViewData["Title"] = "Document toevoegen";
+
+    var patient =
+        ViewBag.Patient as Patient;
+}
+
+<a asp-controller="Documents"
+       asp-action="Index"
+       asp-route-patientId="@patient?.Id">
+    ← Terug naar documenten
+</a>
+
+<h1>Document toevoegen</h1>
+
+@if (patient is not null)
+{
+    <p>
+        Patiënt:
+        <strong>@patient.FullName</strong>
+    </p>
+}
+
+<p>
+    Selecteer een document dat aan het patiëntdossier moet worden toegevoegd.
+</p>
+
+<form asp-controller="Documents"
+      asp-action="Create"
+      method="post"
+      enctype="multipart/form-data">
+
+    <input type="hidden"
+           name="patientId"
+           value="@patient?.Id" />
+
+    <div asp-validation-summary="ModelOnly">
+    </div>
+
+    <div>
+        <label for="file">
+            Document
+        </label>
+
+        <input type="file"
+               id="file"
+               name="file"
+               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+
+        <span class="field-validation-error">
+            @Html.ValidationMessage("file")
+        </span>
+    </div>
+
+    <p>
+        Toegestaan: PDF, Word, JPG en PNG.
+        Maximale bestandsgrootte: 5 MB.
+    </p>
+
+    <button type="submit">
+        Document toevoegen
+    </button>
+</form>
