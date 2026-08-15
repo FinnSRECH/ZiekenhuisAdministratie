@@ -2,6 +2,15 @@
 
 @{
     ViewData["Title"] = "Patiënten";
+
+    var search =
+        ViewBag.Search as string;
+
+    var treatmentFilter =
+        ViewBag.TreatmentFilter as string;
+
+    var sort =
+        ViewBag.Sort as string;
 }
 
 <h1>Patiënten</h1>
@@ -10,34 +19,148 @@
     Overzicht van de patiënten die in het ziekenhuis zijn geregistreerd.
 </p>
 
-<table>
-    <thead>
-        <tr>
-            <th>Naam</th>
-            <th>Geboortedatum</th>
-            <th>E-mail</th>
-            <th>Telefoonnummer</th>
-            <th></th>
-        </tr>
-    </thead>
+<h2>Zoeken en filteren</h2>
 
-    <tbody>
-        @foreach (var patient in Model)
-        {
+<form asp-controller="Patients"
+      asp-action="Index"
+      method="get">
+
+    <div>
+        <label for="search">
+            Patiënt zoeken
+        </label>
+
+        <input type="search"
+               id="search"
+               name="search"
+               value="@search"
+               placeholder="Zoek op naam, e-mail of telefoonnummer" />
+    </div>
+
+    <div>
+        <label for="treatmentFilter">
+            Behandeling
+        </label>
+
+        <select id="treatmentFilter"
+                name="treatmentFilter">
+
+            <option value=""
+                    selected="@(string.IsNullOrEmpty(treatmentFilter))">
+                Alle patiënten
+            </option>
+
+            <option value="active"
+                    selected="@(treatmentFilter == "active")">
+                Actieve behandeling
+            </option>
+
+            <option value="inactive"
+                    selected="@(treatmentFilter == "inactive")">
+                Geen actieve behandeling
+            </option>
+
+        </select>
+    </div>
+
+    <div>
+        <label for="sort">
+            Sorteren op
+        </label>
+
+        <select id="sort"
+                name="sort">
+
+            <option value=""
+                    selected="@(string.IsNullOrEmpty(sort))">
+                Naam A-Z
+            </option>
+
+            <option value="name_desc"
+                    selected="@(sort == "name_desc")">
+                Naam Z-A
+            </option>
+
+            <option value="birth_asc"
+                    selected="@(sort == "birth_asc")">
+                Geboortedatum - oudste eerst
+            </option>
+
+            <option value="birth_desc"
+                    selected="@(sort == "birth_desc")">
+                Geboortedatum - jongste eerst
+            </option>
+
+        </select>
+    </div>
+
+    <br />
+
+    <button type="submit">
+        Toepassen
+    </button>
+
+    <a asp-controller="Patients"
+           asp-action="Index">
+        Filters wissen
+    </a>
+</form>
+
+<p>
+    <strong>@Model.Count</strong>
+    @(Model.Count == 1
+        ? "patiënt gevonden"
+        : "patiënten gevonden")
+</p>
+
+@if (!Model.Any())
+{
+    <p>
+        Geen patiënten gevonden die overeenkomen met de gekozen zoekopdracht of filters.
+    </p>
+}
+else
+{
+    <table>
+        <thead>
             <tr>
-                <td>@patient.FullName</td>
-                <td>@patient.DateOfBirth.ToString("dd-MM-yyyy")</td>
-                <td>@patient.Email</td>
-                <td>@patient.PhoneNumber</td>
-
-                <td>
-                    <a asp-controller="Patients"
-                           asp-action="Details"
-                           asp-route-id="@patient.Id">
-                        Dossier openen
-                    </a>
-                </td>
+                <th>Naam</th>
+                <th>Geboortedatum</th>
+                <th>E-mail</th>
+                <th>Telefoonnummer</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+
+        <tbody>
+            @foreach (var patient in Model)
+            {
+                <tr>
+                    <td>
+                        @patient.FullName
+                    </td>
+
+                    <td>
+                        @patient.DateOfBirth.ToString("dd-MM-yyyy")
+                    </td>
+
+                    <td>
+                        @patient.Email
+                    </td>
+
+                    <td>
+                        @patient.PhoneNumber
+                    </td>
+
+                    <td>
+                        <a asp-controller="Patients"
+                               asp-action="Details"
+                               asp-route-id="@patient.Id">
+                            Dossier openen
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

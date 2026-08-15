@@ -19,7 +19,10 @@ public class PatientsController : Controller
 		_patientAccess = patientAccess;
 	}
 
-	public IActionResult Index()
+	public IActionResult Index(
+		string? search,
+		string? treatmentFilter,
+		string? sort)
 	{
 		var userIdText =
 			User.FindFirstValue(
@@ -33,14 +36,80 @@ public class PatientsController : Controller
 		}
 
 		var patients =
-			_data.GetPatients();
+			_data.GetPatients()
+				.AsEnumerable();
 
-		return View(patients);
+		// -------------------------
+		// ZOEKEN
+		// -------------------------
+
+		if (!string.IsNullOrWhiteSpace(search))
+		{
+			search = search.Trim();
+
+			patients = patients.Where(p =>
+				p.FullName.Contains(
+					search,
+					StringComparison.OrdinalIgnoreCase) ||
+				p.Email.Contains(
+					search,
+					StringComparison.OrdinalIgnoreCase) ||
+				p.PhoneNumber.Contains(
+					search,
+					StringComparison.OrdinalIgnoreCase));
+		}
+
+		// -------------------------
+		// FILTEREN
+		// -------------------------
+
+		if (treatmentFilter == "active")
+		{
+			patients = patients.Where(p =>
+				_data.GetActiveTreatment(p.Id) is not null);
+		}
+		else if (treatmentFilter == "inactive")
+		{
+			patients = patients.Where(p =>
+				_data.GetActiveTreatment(p.Id) is null);
+		}
+
+		// -------------------------
+		// SORTEREN
+		// -------------------------
+
+		patients = sort switch
+		{
+			"name_desc" =>
+				patients.OrderByDescending(p =>
+					p.FullName),
+
+			"birth_asc" =>
+				patients.OrderBy(p =>
+					p.DateOfBirth),
+
+			"birth_desc" =>
+				patients.OrderByDescending(p =>
+					p.DateOfBirth),
+
+			_ =>
+				patients.OrderBy(p =>
+					p.FullName)
+		};
+
+		// Huidige keuzes bewaren in de view.
+		ViewBag.Search = search;
+		ViewBag.TreatmentFilter = treatmentFilter;
+		ViewBag.Sort = sort;
+
+		return View(
+			patients.ToList());
 	}
 
 	public IActionResult Details(int id)
 	{
-		var patient = _data.GetPatient(id);
+		var patient =
+			_data.GetPatient(id);
 
 		if (patient is null)
 		{
@@ -66,7 +135,8 @@ public class PatientsController : Controller
 		{
 			_data.StartAuditLog(
 				userId,
-				User.Identity?.Name ?? "Onbekende gebruiker",
+				User.Identity?.Name ??
+					"Onbekende gebruiker",
 				patient.Id,
 				patient.FullName,
 				"Raadplegen",
