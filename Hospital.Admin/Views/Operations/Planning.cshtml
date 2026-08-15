@@ -1,0 +1,156 @@
+﻿@model IReadOnlyList<Hospital.Domain.Models.Operation>
+@using Hospital.Domain.Models
+
+@{
+    ViewData["Title"] = "Operatieplanning";
+
+    var patients =
+        ViewBag.Patients as Dictionary<int, Patient>
+        ?? new Dictionary<int, Patient>();
+
+    var operatingRooms =
+        ViewBag.OperatingRooms as Dictionary<int, OperatingRoom>
+        ?? new Dictionary<int, OperatingRoom>();
+}
+
+<div class="page-header">
+    <div>
+        <p class="text-muted mb-1">
+            Planning
+        </p>
+
+        <h1>
+            Operaties
+        </h1>
+
+        <p>
+            Overzicht van de geplande operaties waarvoor u toegang heeft.
+        </p>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="content-card">
+        <h2>
+            Geen operaties gevonden
+        </h2>
+
+        <p class="mb-0">
+            Er zijn momenteel geen operaties beschikbaar
+            waarvoor u toegang heeft.
+        </p>
+    </div>
+}
+else
+{
+    <div class="content-card">
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+
+                <thead>
+                    <tr>
+                        <th>
+                            Patiënt
+                        </th>
+
+                        <th>
+                            Operatie
+                        </th>
+
+                        <th>
+                            Datum
+                        </th>
+
+                        <th>
+                            Tijd
+                        </th>
+
+                        <th>
+                            Duur
+                        </th>
+
+                        <th>
+                            Operatiekamer
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Actie
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var operation in Model)
+                    {
+                        patients.TryGetValue(
+                            operation.PatientId,
+                            out var patient);
+
+                        operatingRooms.TryGetValue(
+                            operation.OperatingRoomId,
+                            out var operatingRoom);
+
+                        <tr>
+
+                            <td>
+                                <strong>
+                                    @(patient?.FullName
+                                        ?? "Onbekende patiënt")
+                                </strong>
+                            </td>
+
+                            <td>
+                                @operation.Name
+                            </td>
+
+                            <td>
+                                @operation.StartTime.ToString(
+                                    "dd-MM-yyyy")
+                            </td>
+
+                            <td>
+                                @operation.StartTime.ToString(
+                                    "HH:mm")
+                            </td>
+
+                            <td>
+                                @operation.DurationMinutes min
+                            </td>
+
+                            <td>
+                                @(operatingRoom?.Name
+                                    ?? "Onbekende OK")
+                            </td>
+
+                            <td>
+                                @operation.Status
+                            </td>
+
+                            <td>
+                                <a class="btn btn-sm btn-outline-primary"
+                                       asp-controller="Operations"
+                                       asp-action="Details"
+                                       asp-route-id="@operation.Id">
+
+                                    Bekijken
+
+                                </a>
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+}

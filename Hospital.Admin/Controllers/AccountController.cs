@@ -26,7 +26,9 @@ public class AccountController : Controller
 	{
 		if (User.Identity?.IsAuthenticated == true)
 		{
-			return RedirectToAction("Index", "Patients");
+			return RedirectToAction(
+				"Index",
+				"Home");
 		}
 
 		return View();
@@ -88,7 +90,21 @@ public class AccountController : Controller
 
 		return RedirectToAction(
 			"Index",
-			"Patients");
+			"Home");
+	}
+
+	[AllowAnonymous]
+	[HttpGet]
+	public IActionResult ForgotPassword()
+	{
+		if (User.Identity?.IsAuthenticated == true)
+		{
+			return RedirectToAction(
+				"Index",
+				"Home");
+		}
+
+		return View();
 	}
 
 	[Authorize]

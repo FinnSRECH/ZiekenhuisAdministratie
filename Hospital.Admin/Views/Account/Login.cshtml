@@ -2,52 +2,94 @@
     ViewData["Title"] = "Inloggen";
 }
 
-<h1>Medewerkersportaal</h1>
+<section class="login-shell">
 
-<p>
-    Log in met uw medewerkersaccount.
-</p>
+    <div class="login-card">
 
-@if (ViewBag.Error is string error)
-{
-    <div>
-        <strong>@error</strong>
+        <div class="login-card-header">
+            <span class="login-eyebrow">
+                Medewerkersportaal
+            </span>
+
+            <h1>
+                Inloggen
+            </h1>
+
+            <p>
+                Meld je aan met je medewerkersaccount om toegang te krijgen
+                tot de administratieve ziekenhuisomgeving.
+            </p>
+        </div>
+
+        @if (ViewBag.Error is string error)
+        {
+            <div class="alert-error-custom"
+                 role="alert">
+                <strong>Inloggen mislukt.</strong>
+                <div>
+                    @error
+                </div>
+            </div>
+        }
+
+        <form asp-controller="Account"
+              asp-action="Login"
+              method="post"
+              class="login-form">
+
+            <div>
+                <label for="email">
+                    E-mailadres
+                </label>
+
+                <input id="email"
+                       name="email"
+                       type="email"
+                       value="@ViewBag.Email"
+                       required
+                       autocomplete="username"
+                       placeholder="naam@hospital.nl" />
+            </div>
+
+            <div>
+                <div class="login-password-heading">
+
+                    <label for="password">
+                        Wachtwoord
+                    </label>
+
+                    <a asp-controller="Account"
+                           asp-action="ForgotPassword"
+                           class="login-help-link">
+                        Wachtwoord vergeten?
+                    </a>
+
+                </div>
+
+                <input id="password"
+                       name="password"
+                       type="password"
+                       required
+                       autocomplete="current-password"
+                       placeholder="Voer je wachtwoord in" />
+            </div>
+
+            <button type="submit"
+                    class="login-submit">
+                Inloggen
+            </button>
+
+        </form>
+
+        <div class="login-support">
+            <strong>Problemen met inloggen?</strong>
+
+            <span>
+                Neem contact op met de administrator wanneer je geen toegang
+                meer hebt tot je medewerkersaccount.
+            </span>
+        </div>
+
     </div>
-}
 
-<form asp-controller="Account"
-      asp-action="Login"
-      method="post">
-
-    <div>
-        <label for="email">
-            E-mailadres
-        </label>
-
-        <input id="email"
-               name="email"
-               type="email"
-               value="@ViewBag.Email"
-               required
-               autocomplete="username" />
-    </div>
-
-    <div>
-        <label for="password">
-            Wachtwoord
-        </label>
-
-        <input id="password"
-               name="password"
-               type="password"
-               required
-               autocomplete="current-password" />
-    </div>
-
-    <br />
-
-    <button type="submit">
-        Inloggen
-    </button>
-
-</form>
+</section>

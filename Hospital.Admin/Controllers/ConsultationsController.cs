@@ -21,6 +21,41 @@ public class ConsultationsController : Controller
 		_patientAccess = patientAccess;
 	}
 
+	// -------------------------
+	// CENTRALE PLANNING
+	// -------------------------
+
+	public IActionResult Planning()
+	{
+		var consultations =
+			_data.GetAllConsultations()
+				.Where(c =>
+					_patientAccess.CanAccessPatient(
+						User,
+						c.PatientId))
+				.OrderBy(c =>
+					c.StartTime)
+				.ToList();
+
+		ViewBag.Patients =
+			_data.GetPatients()
+				.ToDictionary(
+					p => p.Id);
+
+		ViewBag.Surgeons =
+			_data.GetStaffMembers()
+				.Where(s =>
+					s.Role == UserRole.Surgeon)
+				.ToDictionary(
+					s => s.Id);
+
+		return View(consultations);
+	}
+
+	// -------------------------
+	// CONSULTATIES PER PATIENT
+	// -------------------------
+
 	public IActionResult Index(int patientId)
 	{
 		var patient =
@@ -47,6 +82,10 @@ public class ConsultationsController : Controller
 
 		return View(consultations);
 	}
+
+	// -------------------------
+	// CONSULTATIE AANMAKEN
+	// -------------------------
 
 	[Authorize(Roles = "Administrator,Secretary")]
 	public IActionResult Create(int patientId)
@@ -78,21 +117,32 @@ public class ConsultationsController : Controller
 
 			return RedirectToAction(
 				nameof(Index),
-				new { patientId });
+				new
+				{
+					patientId
+				});
 		}
 
 		FillCreateData(patient);
 
-		var consultation = new Consultation
-		{
-			PatientId = patientId,
-			TreatmentId = treatments.First().Id,
-			StartTime = DateTime.Now
-				.AddDays(1)
-				.Date
-				.AddHours(9),
-			Status = AppointmentStatus.Planned
-		};
+		var consultation =
+			new Consultation
+			{
+				PatientId =
+					patientId,
+
+				TreatmentId =
+					treatments.First().Id,
+
+				StartTime =
+					DateTime.Now
+						.AddDays(1)
+						.Date
+						.AddHours(9),
+
+				Status =
+					AppointmentStatus.Planned
+			};
 
 		return View(consultation);
 	}
@@ -195,11 +245,6 @@ public class ConsultationsController : Controller
 	public IActionResult Edit(
 		Consultation consultation)
 	{
-		/*
-		 * We halen eerst de bestaande consultatie op.
-		 * Daardoor vertrouwen we niet blind op de
-		 * PatientId die vanuit het formulier wordt gestuurd.
-		 */
 		var existingConsultation =
 			_data.GetConsultation(
 				consultation.Id);
@@ -227,10 +272,6 @@ public class ConsultationsController : Controller
 				"Account");
 		}
 
-		/*
-		 * De patiënt van een bestaande consultatie
-		 * mag niet via het formulier gewijzigd worden.
-		 */
 		consultation.PatientId =
 			existingConsultation.PatientId;
 
@@ -265,7 +306,8 @@ public class ConsultationsController : Controller
 			nameof(Index),
 			new
 			{
-				patientId = patient.Id
+				patientId =
+					patient.Id
 			});
 	}
 
@@ -294,7 +336,8 @@ public class ConsultationsController : Controller
 				consultation.SurgeonId);
 
 		if (surgeon is null ||
-			surgeon.Role != UserRole.Surgeon ||
+			surgeon.Role !=
+				UserRole.Surgeon ||
 			!surgeon.IsActive)
 		{
 			ModelState.AddModelError(
@@ -334,7 +377,8 @@ public class ConsultationsController : Controller
 	private void FillCreateData(
 		Patient patient)
 	{
-		ViewBag.Patient = patient;
+		ViewBag.Patient =
+			patient;
 
 		ViewBag.Treatments =
 			_data.GetTreatments(

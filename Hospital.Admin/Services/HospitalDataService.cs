@@ -176,6 +176,38 @@ public class HospitalDataService
 			.FirstOrDefault(p => p.Id == id);
 	}
 
+	public bool UpdatePatient(
+		Patient patient)
+	{
+		var existingPatient =
+			GetPatient(patient.Id);
+
+		if (existingPatient is null)
+		{
+			return false;
+		}
+
+		existingPatient.FirstName =
+			patient.FirstName.Trim();
+
+		existingPatient.LastName =
+			patient.LastName.Trim();
+
+		existingPatient.DateOfBirth =
+			patient.DateOfBirth;
+
+		existingPatient.Email =
+			patient.Email.Trim();
+
+		existingPatient.PhoneNumber =
+			patient.PhoneNumber.Trim();
+
+		existingPatient.Address =
+			patient.Address.Trim();
+
+		return true;
+	}
+
 	// -------------------------
 	// PERSONEEL
 	// -------------------------
@@ -331,13 +363,20 @@ public class HospitalDataService
 	// -------------------------
 
 	public IReadOnlyList<Consultation>
-		GetConsultations(int patientId)
+	GetConsultations(int patientId)
 	{
 		return _consultations
 			.Where(c =>
 				c.PatientId == patientId)
 			.OrderBy(c =>
 				c.StartTime)
+			.ToList();
+	}
+
+	public IReadOnlyList<Consultation> GetAllConsultations()
+	{
+		return _consultations
+			.OrderBy(c => c.StartTime)
 			.ToList();
 	}
 
@@ -473,11 +512,19 @@ public class HospitalDataService
 	// -------------------------
 
 	public IReadOnlyList<Operation> GetOperations(
-		int patientId)
+	int patientId)
 	{
 		return _operations
 			.Where(o =>
 				o.PatientId == patientId)
+			.OrderBy(o =>
+				o.StartTime)
+			.ToList();
+	}
+
+	public IReadOnlyList<Operation> GetAllOperations()
+	{
+		return _operations
 			.OrderBy(o =>
 				o.StartTime)
 			.ToList();

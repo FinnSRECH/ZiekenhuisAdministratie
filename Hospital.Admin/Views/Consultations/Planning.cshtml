@@ -1,0 +1,111 @@
+﻿@model IReadOnlyList<Hospital.Domain.Models.Consultation>
+@using Hospital.Domain.Models
+
+@{
+    ViewData["Title"] = "Consultatieplanning";
+
+    var patients =
+        ViewBag.Patients as Dictionary<int, Patient>
+        ?? new Dictionary<int, Patient>();
+
+    var surgeons =
+        ViewBag.Surgeons as Dictionary<int, StaffMember>
+        ?? new Dictionary<int, StaffMember>();
+}
+
+<div class="page-header">
+    <div>
+        <p class="text-muted mb-1">
+            Planning
+        </p>
+
+        <h1>
+            Consultaties
+        </h1>
+
+        <p>
+            Overzicht van consultaties waarvoor je toegang hebt.
+        </p>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="content-card">
+        <p class="mb-0">
+            Er zijn geen consultaties beschikbaar.
+        </p>
+    </div>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Patiënt</th>
+                <th>Datum</th>
+                <th>Tijd</th>
+                <th>Reden</th>
+                <th>Chirurg</th>
+                <th>Ruimte</th>
+                <th>Status</th>
+                <th>Actie</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var consultation in Model)
+            {
+                patients.TryGetValue(
+                    consultation.PatientId,
+                    out var patient);
+
+                surgeons.TryGetValue(
+                    consultation.SurgeonId,
+                    out var surgeon);
+
+                <tr>
+                    <td>
+                        @(patient?.FullName ?? "Onbekende patiënt")
+                    </td>
+
+                    <td>
+                        @consultation.StartTime.ToString("dd-MM-yyyy")
+                    </td>
+
+                    <td>
+                        @consultation.StartTime.ToString("HH:mm")
+                    </td>
+
+                    <td>
+                        @consultation.Reason
+                    </td>
+
+                    <td>
+                        @(surgeon?.FullName ?? "Onbekende chirurg")
+                    </td>
+
+                    <td>
+                        @consultation.Room
+                    </td>
+
+                    <td>
+                        @consultation.Status
+                    </td>
+
+                    <td>
+                        @if (patient is not null)
+                        {
+                            <a class="action-link"
+                                   asp-controller="Consultations"
+                                   asp-action="Index"
+                                   asp-route-patientId="@patient.Id">
+                                Bekijken
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

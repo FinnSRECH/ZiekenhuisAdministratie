@@ -1,0 +1,97 @@
+﻿@model Hospital.Domain.Models.Patient
+
+@{
+    ViewData["Title"] = "Patiëntgegevens wijzigen";
+}
+
+<a asp-controller="Patients"
+       asp-action="Details"
+       asp-route-id="@Model.Id">
+    ← Terug naar patiëntdossier
+</a>
+
+<h1>Patiëntgegevens wijzigen</h1>
+
+<p>
+    Wijzig de administratieve gegevens van
+    <strong>@Model.FullName</strong>.
+</p>
+
+<form asp-controller="Patients"
+      asp-action="Edit"
+      method="post">
+
+    <input asp-for="Id"
+           type="hidden" />
+
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <div>
+        <label asp-for="FirstName">
+            Voornaam
+        </label>
+
+        <input asp-for="FirstName" />
+
+        <span asp-validation-for="FirstName"></span>
+    </div>
+
+    <div>
+        <label asp-for="LastName">
+            Achternaam
+        </label>
+
+        <input asp-for="LastName" />
+
+        <span asp-validation-for="LastName"></span>
+    </div>
+
+    <div>
+        <label asp-for="DateOfBirth">
+            Geboortedatum
+        </label>
+
+        <input asp-for="DateOfBirth"
+               type="date" />
+
+        <span asp-validation-for="DateOfBirth"></span>
+    </div>
+
+    <div>
+        <label asp-for="Email">
+            E-mailadres
+        </label>
+
+        <input asp-for="Email"
+               type="email" />
+
+        <span asp-validation-for="Email"></span>
+    </div>
+
+    <div>
+        <label asp-for="PhoneNumber">
+            Telefoonnummer
+        </label>
+
+        <input asp-for="PhoneNumber"
+               type="tel" />
+
+        <span asp-validation-for="PhoneNumber"></span>
+    </div>
+
+    <div>
+        <label asp-for="Address">
+            Adres
+        </label>
+
+        <input asp-for="Address" />
+
+        <span asp-validation-for="Address"></span>
+    </div>
+
+    <br />
+
+    <button type="submit">
+        Wijzigingen opslaan
+    </button>
+</form>

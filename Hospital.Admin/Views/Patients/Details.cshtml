@@ -4,81 +4,184 @@
     ViewData["Title"] = "Patiëntdossier";
 }
 
-<a asp-controller="Patients"
-       asp-action="Index">
-    ← Terug naar patiënten
-</a>
+<div class="page-header">
 
-<h1>@Model.FullName</h1>
+    <div>
+        <a asp-controller="Patients"
+               asp-action="Index">
+            ← Terug naar patiënten
+        </a>
 
-<p>
-    Patiëntnummer: @Model.Id
-</p>
+        <p class="text-muted mb-1 mt-3">
+            Patiëntdossier
+        </p>
 
-<hr />
+        <h1>
+            @Model.FullName
+        </h1>
 
-<h2>Persoonsgegevens</h2>
+        <p class="text-muted">
+            Patiëntnummer: @Model.Id
+        </p>
+    </div>
 
-<dl>
-    <dt>Geboortedatum</dt>
-    <dd>@Model.DateOfBirth.ToString("dd-MM-yyyy")</dd>
+    @if (User.IsInRole("Administrator") ||
+         User.IsInRole("Secretary"))
+    {
+        <div>
+            <a class="action-link"
+                   asp-controller="Patients"
+                   asp-action="Edit"
+                   asp-route-id="@Model.Id">
+                Gegevens wijzigen
+            </a>
+        </div>
+    }
 
-    <dt>E-mailadres</dt>
-    <dd>@Model.Email</dd>
+</div>
 
-    <dt>Telefoonnummer</dt>
-    <dd>@Model.PhoneNumber</dd>
+@if (TempData["Success"] is string success)
+{
+    <div class="alert-success-custom"
+         role="status">
+        <strong>
+            @success
+        </strong>
+    </div>
+}
 
-    <dt>Adres</dt>
-    <dd>@Model.Address</dd>
-</dl>
+<section>
 
-<hr />
+    <h2>
+        Persoonsgegevens
+    </h2>
 
-<h2>Dossier</h2>
+    <dl>
+        <dt>
+            Geboortedatum
+        </dt>
 
-<p>
-    Vanuit dit patiëntdossier kunnen behandelingen,
-    consultaties, operaties, evaluaties en documenten
-    worden beheerd.
-</p>
+        <dd>
+            @Model.DateOfBirth.ToString("dd-MM-yyyy")
+        </dd>
 
-<p>
-    <a asp-controller="Treatments"
-           asp-action="Index"
-           asp-route-patientId="@Model.Id">
-        Behandelingen bekijken
-    </a>
-</p>
+        <dt>
+            E-mailadres
+        </dt>
 
-<p>
-    <a asp-controller="Consultations"
-           asp-action="Index"
-           asp-route-patientId="@Model.Id">
-        Consultaties bekijken
-    </a>
-</p>
+        <dd>
+            @Model.Email
+        </dd>
 
-<p>
-    <a asp-controller="Operations"
-           asp-action="Index"
-           asp-route-patientId="@Model.Id">
-        Operaties bekijken
-    </a>
-</p>
+        <dt>
+            Telefoonnummer
+        </dt>
 
-<p>
-    <a asp-controller="Evaluations"
-           asp-action="Index"
-           asp-route-patientId="@Model.Id">
-        Evaluaties bekijken
-    </a>
-</p>
+        <dd>
+            @Model.PhoneNumber
+        </dd>
 
-<p>
-    <a asp-controller="Documents"
-           asp-action="Index"
-           asp-route-patientId="@Model.Id">
-        Documenten bekijken
-    </a>
-</p>
+        <dt>
+            Adres
+        </dt>
+
+        <dd>
+            @Model.Address
+        </dd>
+    </dl>
+
+</section>
+
+<section>
+
+    <h2>
+        Dossieronderdelen
+    </h2>
+
+    <p>
+        Kies het onderdeel dat je wilt bekijken of beheren.
+    </p>
+
+    <div class="dossier-grid">
+
+        <a class="dossier-card"
+               asp-controller="Treatments"
+               asp-action="Index"
+               asp-route-patientId="@Model.Id">
+
+            <strong>
+                Behandelingen
+            </strong>
+
+            <span>
+                Bekijk actieve en afgeronde behandelingen
+                en het gekoppelde zorgteam.
+            </span>
+
+        </a>
+
+        <a class="dossier-card"
+               asp-controller="Consultations"
+               asp-action="Index"
+               asp-route-patientId="@Model.Id">
+
+            <strong>
+                Consultaties
+            </strong>
+
+            <span>
+                Bekijk geplande en eerdere consultaties.
+            </span>
+
+        </a>
+
+        <a class="dossier-card"
+               asp-controller="Operations"
+               asp-action="Index"
+               asp-route-patientId="@Model.Id">
+
+            <strong>
+                Operaties
+            </strong>
+
+            <span>
+                Bekijk geplande en eerdere operaties.
+            </span>
+
+        </a>
+
+        <a class="dossier-card"
+               asp-controller="Evaluations"
+               asp-action="Index"
+               asp-route-patientId="@Model.Id">
+
+            <strong>
+                Evaluaties
+            </strong>
+
+            <span>
+                Bekijk geregistreerde evaluaties
+                binnen het patiëntdossier.
+            </span>
+
+        </a>
+
+        <a class="dossier-card"
+               asp-controller="Documents"
+               asp-action="Index"
+               asp-route-patientId="@Model.Id">
+
+            <strong>
+                Documenten
+            </strong>
+
+            <span>
+                Bekijk documenten die aan het
+                patiëntdossier zijn toegevoegd.
+            </span>
+
+        </a>
+
+    </div>
+
+</section>

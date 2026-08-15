@@ -1,8 +1,111 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = User.Identity?.IsAuthenticated == true
+        ? "Dashboard"
+        : "Welkom";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <section class="content-card">
+        <p class="text-muted mb-2">
+            Hospital Admin
+        </p>
+
+        <h1>
+            Welkom, @User.Identity.Name
+        </h1>
+
+        <p>
+            Vanuit dit dashboard kun je snel naar de belangrijkste onderdelen
+            van de administratieve ziekenhuisomgeving.
+        </p>
+    </section>
+
+    <section>
+        <h2>Snelle toegang</h2>
+
+        <div class="dashboard-grid">
+
+            <a class="dossier-card"
+                   asp-controller="Patients"
+                   asp-action="Index">
+
+                <strong>Patiënten</strong>
+
+                <span>
+                    Zoek patiënten en open hun dossier.
+                </span>
+            </a>
+
+            <a class="dossier-card"
+                   asp-controller="Patients"
+                   asp-action="Index">
+
+                <strong>Planning</strong>
+
+                <span>
+                    Plan en wijzig consultaties en operaties via het patiëntdossier.
+                </span>
+            </a>
+
+            @if (User.IsInRole("Administrator") ||
+                 User.IsInRole("Secretary"))
+            {
+                <a class="dossier-card"
+                       asp-controller="OperatingRooms"
+                       asp-action="Index">
+
+                    <strong>Operatiekamers</strong>
+
+                    <span>
+                        Bekijk en beheer beschikbare operatiekamers.
+                    </span>
+                </a>
+            }
+
+            @if (User.IsInRole("Administrator"))
+            {
+                <a class="dossier-card"
+                       asp-controller="AuditLogs"
+                       asp-action="Index">
+
+                    <strong>Auditlog</strong>
+
+                    <span>
+                        Controleer inzages en wijzigingen in patiëntendossiers.
+                    </span>
+                </a>
+            }
+
+        </div>
+    </section>
+}
+else
+{
+    <section class="content-card">
+
+        <p class="text-muted mb-2">
+            Administratieve ziekenhuisomgeving
+        </p>
+
+        <h1>
+            Hospital Admin
+        </h1>
+
+        <p>
+            Beheer patiëntdossiers, behandelingen, consultaties,
+            operaties en andere administratieve processen vanuit één omgeving.
+        </p>
+
+        <p>
+            Meld je aan met je medewerkersaccount om verder te gaan.
+        </p>
+
+        <a class="btn btn-primary"
+               asp-controller="Account"
+               asp-action="Login">
+            Inloggen als medewerker
+        </a>
+
+    </section>
+}

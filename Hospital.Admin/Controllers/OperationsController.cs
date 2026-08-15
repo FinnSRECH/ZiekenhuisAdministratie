@@ -21,6 +21,39 @@ public class OperationsController : Controller
 		_patientAccess = patientAccess;
 	}
 
+	// -------------------------
+	// CENTRALE PLANNING
+	// -------------------------
+
+	public IActionResult Planning()
+	{
+		var operations =
+			_data.GetAllOperations()
+				.Where(o =>
+					_patientAccess.CanAccessPatient(
+						User,
+						o.PatientId))
+				.OrderBy(o =>
+					o.StartTime)
+				.ToList();
+
+		ViewBag.Patients =
+			_data.GetPatients()
+				.ToDictionary(
+					p => p.Id);
+
+		ViewBag.OperatingRooms =
+			_data.GetOperatingRooms()
+				.ToDictionary(
+					r => r.Id);
+
+		return View(operations);
+	}
+
+	// -------------------------
+	// OPERATIES PER PATIENT
+	// -------------------------
+
 	public IActionResult Index(int patientId)
 	{
 		var patient =
@@ -203,11 +236,6 @@ public class OperationsController : Controller
 	public IActionResult Edit(
 		Operation operation)
 	{
-		/*
-		 * Haal de bestaande operatie op.
-		 * Hierdoor vertrouwen we niet op de
-		 * PatientId uit het formulier.
-		 */
 		var existingOperation =
 			_data.GetOperation(
 				operation.Id);
@@ -235,10 +263,6 @@ public class OperationsController : Controller
 				"Account");
 		}
 
-		/*
-		 * Een bestaande operatie mag niet
-		 * naar een andere patiënt worden verplaatst.
-		 */
 		operation.PatientId =
 			existingOperation.PatientId;
 
@@ -485,11 +509,6 @@ public class OperationsController : Controller
 			_data.GetTreatments(
 				patient.Id);
 
-		/*
-		 * Bij wijzigen moet de huidige OK ook
-		 * zichtbaar blijven, zelfs als deze
-		 * inmiddels op niet beschikbaar staat.
-		 */
 		var operatingRooms =
 			_data.GetAvailableOperatingRooms()
 				.ToList();
