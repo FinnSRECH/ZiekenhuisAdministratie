@@ -1,4 +1,5 @@
-﻿using Hospital.Admin.Services;
+﻿using System.Security.Claims;
+using Hospital.Admin.Services;
 using Hospital.Domain.Enums;
 using Hospital.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -120,6 +121,161 @@ public class ConsultationsController : Controller
 				"Account");
 		}
 
+		ValidateConsultation(
+			consultation);
+
+		if (!ModelState.IsValid)
+		{
+			FillCreateData(patient);
+
+			return View(consultation);
+		}
+
+		_data.AddConsultation(
+			consultation);
+
+		AddAuditLog(
+			patient,
+			"Toevoegen",
+			"Consultatie");
+
+		TempData["Success"] =
+			"De consultatie is succesvol gepland.";
+
+		return RedirectToAction(
+			nameof(Index),
+			new
+			{
+				patientId =
+					consultation.PatientId
+			});
+	}
+
+	// -------------------------
+	// CONSULTATIE WIJZIGEN
+	// -------------------------
+
+	[Authorize(Roles = "Administrator,Secretary")]
+	public IActionResult Edit(int id)
+	{
+		var consultation =
+			_data.GetConsultation(id);
+
+		if (consultation is null)
+		{
+			return NotFound();
+		}
+
+		var patient =
+			_data.GetPatient(
+				consultation.PatientId);
+
+		if (patient is null)
+		{
+			return NotFound();
+		}
+
+		if (!_patientAccess.CanAccessPatient(
+				User,
+				patient.Id))
+		{
+			return RedirectToAction(
+				"AccessDenied",
+				"Account");
+		}
+
+		FillCreateData(patient);
+
+		return View(consultation);
+	}
+
+	[HttpPost]
+	[ValidateAntiForgeryToken]
+	[Authorize(Roles = "Administrator,Secretary")]
+	public IActionResult Edit(
+		Consultation consultation)
+	{
+		/*
+		 * We halen eerst de bestaande consultatie op.
+		 * Daardoor vertrouwen we niet blind op de
+		 * PatientId die vanuit het formulier wordt gestuurd.
+		 */
+		var existingConsultation =
+			_data.GetConsultation(
+				consultation.Id);
+
+		if (existingConsultation is null)
+		{
+			return NotFound();
+		}
+
+		var patient =
+			_data.GetPatient(
+				existingConsultation.PatientId);
+
+		if (patient is null)
+		{
+			return NotFound();
+		}
+
+		if (!_patientAccess.CanAccessPatient(
+				User,
+				patient.Id))
+		{
+			return RedirectToAction(
+				"AccessDenied",
+				"Account");
+		}
+
+		/*
+		 * De patiënt van een bestaande consultatie
+		 * mag niet via het formulier gewijzigd worden.
+		 */
+		consultation.PatientId =
+			existingConsultation.PatientId;
+
+		ValidateConsultation(
+			consultation);
+
+		if (!ModelState.IsValid)
+		{
+			FillCreateData(patient);
+
+			return View(consultation);
+		}
+
+		var updated =
+			_data.UpdateConsultation(
+				consultation);
+
+		if (!updated)
+		{
+			return NotFound();
+		}
+
+		AddAuditLog(
+			patient,
+			"Wijzigen",
+			"Consultatie");
+
+		TempData["Success"] =
+			"De consultatie is succesvol gewijzigd.";
+
+		return RedirectToAction(
+			nameof(Index),
+			new
+			{
+				patientId = patient.Id
+			});
+	}
+
+	// -------------------------
+	// VALIDATIE
+	// -------------------------
+
+	private void ValidateConsultation(
+		Consultation consultation)
+	{
 		var treatment =
 			_data.GetTreatment(
 				consultation.TreatmentId);
@@ -169,27 +325,11 @@ public class ConsultationsController : Controller
 				nameof(consultation.StartTime),
 				"De consultatie moet in de toekomst worden gepland.");
 		}
-
-		if (!ModelState.IsValid)
-		{
-			FillCreateData(patient);
-
-			return View(consultation);
-		}
-
-		_data.AddConsultation(consultation);
-
-		TempData["Success"] =
-			"De consultatie is succesvol gepland.";
-
-		return RedirectToAction(
-			nameof(Index),
-			new
-			{
-				patientId =
-					consultation.PatientId
-			});
 	}
+
+	// -------------------------
+	// VIEW DATA
+	// -------------------------
 
 	private void FillCreateData(
 		Patient patient)
@@ -197,10 +337,41 @@ public class ConsultationsController : Controller
 		ViewBag.Patient = patient;
 
 		ViewBag.Treatments =
-			_data.GetTreatments(patient.Id);
+			_data.GetTreatments(
+				patient.Id);
 
 		ViewBag.Surgeons =
 			_data.GetStaffMembersByRole(
 				UserRole.Surgeon);
+	}
+
+	// -------------------------
+	// AUDITLOG
+	// -------------------------
+
+	private void AddAuditLog(
+		Patient patient,
+		string action,
+		string resource)
+	{
+		var userIdText =
+			User.FindFirstValue(
+				ClaimTypes.NameIdentifier);
+
+		if (!int.TryParse(
+				userIdText,
+				out var userId))
+		{
+			return;
+		}
+
+		_data.StartAuditLog(
+			userId,
+			User.Identity?.Name ??
+				"Onbekende gebruiker",
+			patient.Id,
+			patient.FullName,
+			action,
+			resource);
 	}
 }

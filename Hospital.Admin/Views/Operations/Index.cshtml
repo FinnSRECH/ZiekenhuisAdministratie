@@ -16,6 +16,20 @@
 
 <h1>Operaties</h1>
 
+@if (TempData["Success"] is string success)
+{
+    <div>
+        <strong>@success</strong>
+    </div>
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div>
+        <strong>@error</strong>
+    </div>
+}
+
 @if (patient is not null)
 {
     <p>
@@ -55,7 +69,7 @@ else
                 <th>Datum</th>
                 <th>Tijd</th>
                 <th>Status</th>
-                <th></th>
+                <th>Acties</th>
             </tr>
         </thead>
 
@@ -85,6 +99,18 @@ else
                                asp-route-id="@operation.Id">
                             Bekijken
                         </a>
+
+                        @if (User.IsInRole("Administrator") ||
+                             User.IsInRole("Secretary"))
+                        {
+                            <span> | </span>
+
+                            <a asp-controller="Operations"
+                                   asp-action="Edit"
+                                   asp-route-id="@operation.Id">
+                                Wijzigen
+                            </a>
+                        }
                     </td>
                 </tr>
             }

@@ -70,6 +70,12 @@ else
                 <th>Reden</th>
                 <th>Ruimte</th>
                 <th>Status</th>
+
+                @if (User.IsInRole("Administrator") ||
+                     User.IsInRole("Secretary"))
+                {
+                    <th>Acties</th>
+                }
             </tr>
         </thead>
 
@@ -96,6 +102,18 @@ else
                     <td>
                         @consultation.Status
                     </td>
+
+                    @if (User.IsInRole("Administrator") ||
+                         User.IsInRole("Secretary"))
+                    {
+                        <td>
+                            <a asp-controller="Consultations"
+                                   asp-action="Edit"
+                                   asp-route-id="@consultation.Id">
+                                Wijzigen
+                            </a>
+                        </td>
+                    }
                 </tr>
             }
         </tbody>

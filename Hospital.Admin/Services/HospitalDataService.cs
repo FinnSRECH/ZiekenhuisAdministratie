@@ -355,6 +355,37 @@ public class HospitalDataService
 
 		_consultations.Add(consultation);
 	}
+	public bool UpdateConsultation(
+	Consultation consultation)
+	{
+		var existingConsultation =
+			GetConsultation(consultation.Id);
+
+		if (existingConsultation is null)
+		{
+			return false;
+		}
+
+		existingConsultation.TreatmentId =
+			consultation.TreatmentId;
+
+		existingConsultation.StartTime =
+			consultation.StartTime;
+
+		existingConsultation.Reason =
+			consultation.Reason.Trim();
+
+		existingConsultation.SurgeonId =
+			consultation.SurgeonId;
+
+		existingConsultation.Room =
+			consultation.Room.Trim();
+
+		existingConsultation.Status =
+			consultation.Status;
+
+		return true;
+	}
 
 	// -------------------------
 	// OPERATIEKAMERS
@@ -437,7 +468,7 @@ public class HospitalDataService
 	// -------------------------
 
 	public IReadOnlyList<Operation> GetOperations(
-		int patientId)
+	int patientId)
 	{
 		return _operations
 			.Where(o =>
@@ -466,6 +497,11 @@ public class HospitalDataService
 
 		return _operations.Any(
 			existingOperation =>
+
+				// Bij wijzigen mag een operatie
+				// niet met zichzelf conflicteren.
+				existingOperation.Id != operation.Id &&
+
 				existingOperation.OperatingRoomId ==
 					operation.OperatingRoomId &&
 
@@ -490,6 +526,11 @@ public class HospitalDataService
 
 		return _operations.Any(
 			existingOperation =>
+
+				// Bij wijzigen mag een operatie
+				// niet met zichzelf conflicteren.
+				existingOperation.Id != operation.Id &&
+
 				existingOperation.Status !=
 					AppointmentStatus.Cancelled &&
 
@@ -514,6 +555,44 @@ public class HospitalDataService
 				: _operations.Max(o => o.Id) + 1;
 
 		_operations.Add(operation);
+	}
+
+	public bool UpdateOperation(
+		Operation operation)
+	{
+		var existingOperation =
+			GetOperation(operation.Id);
+
+		if (existingOperation is null)
+		{
+			return false;
+		}
+
+		existingOperation.TreatmentId =
+			operation.TreatmentId;
+
+		existingOperation.Name =
+			operation.Name.Trim();
+
+		existingOperation.Description =
+			operation.Description.Trim();
+
+		existingOperation.StartTime =
+			operation.StartTime;
+
+		existingOperation.DurationMinutes =
+			operation.DurationMinutes;
+
+		existingOperation.OperatingRoomId =
+			operation.OperatingRoomId;
+
+		existingOperation.SurgeonIds =
+			operation.SurgeonIds.ToList();
+
+		existingOperation.Status =
+			operation.Status;
+
+		return true;
 	}
 
 	// -------------------------
